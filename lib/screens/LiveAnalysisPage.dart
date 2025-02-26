@@ -22,6 +22,9 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   Timer? _captureTimer;
   final stt.SpeechToText _speechToText = stt.SpeechToText();
   bool _isListening = false;
+  bool _hasSentDefaultPrompt = false;
+  final List<XFile> _capturedFrames = [];
+  Timer? _analysisTimer;
 
   @override
   void initState() {
@@ -45,27 +48,50 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
     if (!mounted) return;
 
     setState(() => _isCameraInitialized = true);
-
-    // Start periodic image capture
-    _captureTimer = Timer.periodic(const Duration(seconds: 10), (_) {
-      if (!_isAnalyzing) {
-        _analyzeVideoFrame();
-      }
-    });
   }
 
   Future<void> _startListening() async {
     if (!_isListening) {
       setState(() => _isListening = true);
+      _capturedFrames.clear();
+      _userVoiceInput = null;
       _speechToText.listen(
         onResult: (result) {
           setState(() {
             _userVoiceInput = result.recognizedWords;
+            _captureFrame();
+            _resetAnalysisTimer();
           });
         },
-        listenFor: const Duration(seconds: 30),
+        onSoundLevelChange: (level) {
+          _resetAnalysisTimer();
+        },
+        cancelOnError: true,
+        listenFor: const Duration(seconds: 60),
+        pauseFor: const Duration(seconds: 3),
         localeId: 'en_US',
       );
+      _resetAnalysisTimer();
+    }
+  }
+
+  void _resetAnalysisTimer() {
+    _analysisTimer?.cancel();
+    _analysisTimer = Timer(const Duration(seconds: 5), () {
+      if (_isListening) {
+        _stopListening();
+      }
+    });
+  }
+
+  Future<void> _captureFrame() async {
+    if (_isCameraInitialized && _isListening) {
+      try {
+        final frame = await _cameraController!.takePicture();
+        _capturedFrames.add(frame);
+      } catch (e) {
+        print('Frame capture failed: $e');
+      }
     }
   }
 
@@ -74,33 +100,44 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
     setState(() {
       _isListening = false;
     });
+    _analyzeCollectedData();
   }
 
-  Future<void> _analyzeVideoFrame() async {
+  Future<void> _analyzeCollectedData() async {
     if (!_isCameraInitialized || _isAnalyzing) return;
 
     setState(() => _isAnalyzing = true);
 
     try {
-      final XFile frame = await _cameraController!.takePicture();
-      final File imageFile = File(frame.path);
+      List<Part> prompt = [];
 
-      if (!await imageFile.exists()) {
-        print('Frame capture failed');
-        return;
+      const String defaultPrompt =
+          "You are analyzing a person's personality based on their gestures and speech patterns."
+          "Identify key personality traits such as confidence, nervousness, extroversion, introversion, "
+          "and mood based on their facial expressions and speech content. Provide a concise analysis.";
+
+      if (!_hasSentDefaultPrompt) {
+        prompt.add(Part.text(defaultPrompt));
+        _hasSentDefaultPrompt = true;
       }
 
-      final imageBytes = await imageFile.readAsBytes();
+      if (_userVoiceInput != null && _userVoiceInput!.isNotEmpty) {
+        prompt.add(Part.text("Speech input: $_userVoiceInput"));
+      }
 
-      final prompt = [
-        Part.text(_userVoiceInput ?? 'Analyze the content of this image'),
-        Part.inline(InlineData.fromUint8List(imageBytes)),
-      ];
+      for (final frame in _capturedFrames) {
+        final File imageFile = File(frame.path);
+        if (await imageFile.exists()) {
+          final imageBytes = await imageFile.readAsBytes();
+          prompt.add(Part.inline(InlineData.fromUint8List(imageBytes)));
+        } else {
+          print('Frame file not found: ${frame.path}');
+        }
+      }
 
       final response = await Gemini.instance.prompt(parts: prompt);
-
       setState(() {
-        _analysisResult = response?.output ?? 'No analysis result';
+        _analysisResult = response?.output ?? 'No analysis result available.';
       });
     } catch (e) {
       setState(() {
@@ -116,6 +153,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
     _cameraController?.dispose();
     _captureTimer?.cancel();
     _speechToText.stop();
+    _analysisTimer?.cancel();
     super.dispose();
   }
 
@@ -123,95 +161,124 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('AI Live Analysis'),
+        title: const Text('AI Personality Analysis'),
         backgroundColor: Colors.deepPurple,
-      ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.deepPurple.shade200, Colors.deepPurple.shade400],
-          ),
+        elevation: 0,
+        centerTitle: true,
+        titleTextStyle: const TextStyle(
+          fontSize: 22,
+          fontWeight: FontWeight.bold,
         ),
+        iconTheme: const IconThemeData(color: Colors.white),
+      ),
+      backgroundColor: Colors.deepPurple.shade400,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            if (_isCameraInitialized)
-              Expanded(
-                flex: 3,
-                child: Container(
-                  margin: const EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(20),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.2),
-                        spreadRadius: 2,
-                        blurRadius: 10,
-                      ),
-                    ],
-                    border: Border.all(color: Colors.white, width: 3),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(20),
-                    child: CameraPreview(_cameraController!),
-                  ),
-                ),
-              ),
             Expanded(
-              flex: 2,
+              flex: 3,
               child: Container(
-                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.9),
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        IconButton(
-                          icon: Icon(
-                            _isListening ? Icons.mic : Icons.mic_none,
-                            color:
-                                _isListening ? Colors.red : Colors.deepPurple,
-                            size: 40,
-                          ),
-                          onPressed:
-                              _isListening ? _stopListening : _startListening,
-                        ),
-                        const SizedBox(width: 20),
-                        ElevatedButton(
-                          onPressed: _analyzeVideoFrame,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.deepPurple,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
-                            ),
-                          ),
-                          child: const Text('Analyze Frame'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
-                    Expanded(
-                      child: SingleChildScrollView(
-                        child: Text(
-                          _analysisResult ?? 'Waiting for analysis...',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.3),
+                      spreadRadius: 3,
+                      blurRadius: 15,
                     ),
                   ],
                 ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  child: _isCameraInitialized
+                      ? AspectRatio(
+                          aspectRatio: _cameraController!.value.aspectRatio,
+                          child: CameraPreview(_cameraController!),
+                        )
+                      : const Center(
+                          child: CircularProgressIndicator(
+                            valueColor:
+                                AlwaysStoppedAnimation<Color>(Colors.white),
+                          ),
+                        ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.1),
+                    spreadRadius: 1,
+                    blurRadius: 8,
+                  ),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor:
+                          _isListening ? Colors.redAccent : Colors.deepPurple,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 30, vertical: 15),
+                      textStyle: const TextStyle(
+                          fontSize: 18, fontWeight: FontWeight.bold),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
+                      ),
+                      elevation: 5,
+                      shadowColor: Colors.deepPurple.shade700,
+                    ),
+                    onPressed: _isListening ? _stopListening : _startListening,
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          _isListening ? Icons.stop : Icons.mic,
+                          color: Colors.white,
+                        ),
+                        const SizedBox(width: 10),
+                        Text(
+                          _isListening ? 'Stop Listening' : 'Start Listening',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  const Text(
+                    'Analysis Result:',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.deepPurple,
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    constraints: BoxConstraints(maxHeight: 200),
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                      child: Text(
+                        _analysisResult ?? 'Waiting for analysis...',
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          color: Colors.black87,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ],
