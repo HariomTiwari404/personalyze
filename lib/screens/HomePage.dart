@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:personlayze/screens/LiveAnalysisPage.dart';
 import 'package:personlayze/widgets/BottomNavBar.dart';
 import 'package:personlayze/widgets/CustomFeatureButton.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
@@ -92,18 +93,33 @@ class _HomePageState extends State<HomePage> {
                 crossAxisCount: 2, 
                 crossAxisSpacing: 16, 
                 mainAxisSpacing: 16, 
-                children: const [
+                children:  [
                   CustomFeatureButton(
+                    data: "Live AI Analysis",
+                    onTap: () { 
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> LiveAnalysisPage()));
+
+                    },
                    
                   ),
                   CustomFeatureButton(
+                    data: "Live AI Analysis",
+                    onTap: () { 
+
+                    }
                     
                   ),
                   CustomFeatureButton(
-                   
+                   data: "Live AI Analysis",
+                   onTap: () { 
+
+                    }
                   ),
                   CustomFeatureButton(
-                    
+                    data: "Live AI Analysis",
+                    onTap: () { 
+
+                    }
                   ),
                 ],
               ),
