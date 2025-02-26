@@ -114,7 +114,10 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   Future<void> _analyzeCollectedData() async {
     if (!_isCameraInitialized || _isAnalyzing) return;
 
-    setState(() => _isAnalyzing = true);
+    setState(() {
+      _isAnalyzing = true;
+      _analysisResult = "Analyzing... Please wait.";
+    });
 
     try {
       List<Part> prompt = [];
