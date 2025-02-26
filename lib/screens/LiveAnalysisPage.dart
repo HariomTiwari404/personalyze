@@ -42,7 +42,11 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
     final frontCamera = cameras.firstWhere(
         (camera) => camera.lensDirection == CameraLensDirection.front);
 
-    _cameraController = CameraController(frontCamera, ResolutionPreset.medium);
+    _cameraController = CameraController(
+      frontCamera,
+      ResolutionPreset.ultraHigh,
+      enableAudio: false,
+    );
     await _cameraController!.initialize();
 
     if (!mounted) return;
@@ -87,7 +91,11 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   Future<void> _captureFrame() async {
     if (_isCameraInitialized && _isListening) {
       try {
+        // Capture without triggering UI effects
+        await _cameraController!
+            .setFlashMode(FlashMode.off); // Ensure flash is off
         final frame = await _cameraController!.takePicture();
+
         _capturedFrames.add(frame);
       } catch (e) {
         print('Frame capture failed: $e');
@@ -177,33 +185,29 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Expanded(
-              flex: 3,
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.3),
-                      spreadRadius: 3,
-                      blurRadius: 15,
-                    ),
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-                  child: _isCameraInitialized
-                      ? AspectRatio(
-                          aspectRatio: _cameraController!.value.aspectRatio,
-                          child: CameraPreview(_cameraController!),
-                        )
-                      : const Center(
-                          child: CircularProgressIndicator(
-                            valueColor:
-                                AlwaysStoppedAnimation<Color>(Colors.white),
-                          ),
+            Container(
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.3),
+                    spreadRadius: 3,
+                    blurRadius: 15,
+                  ),
+                ],
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: _isCameraInitialized
+                    ? SizedBox(
+                        child: CameraPreview(_cameraController!),
+                      )
+                    : const Center(
+                        child: CircularProgressIndicator(
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(Colors.white),
                         ),
-                ),
+                      ),
               ),
             ),
             const SizedBox(height: 20),
