@@ -26,7 +26,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   Timer? _captureTimer;
   final stt.SpeechToText _speechToText = stt.SpeechToText();
   bool _isListening = false;
-  bool _hasSentDefaultPrompt = false;
+  final bool _hasSentDefaultPrompt = false;
   final List<XFile> _capturedFrames = [];
   Timer? _analysisTimer;
 
@@ -167,20 +167,15 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
       List<Part> prompt = [];
 
       const String defaultPrompt =
-          "You are an AI model designed to predict a person's personality based on their facial expressions and speech patterns. "
-          "Your task is to analyze their gestures, emotions, and tone of voice to determine their personality traits. "
-          "Focus only on how they appear and behave, regardless of what they are saying. "
-          "Identify if they seem happy, nervous, confident, sad, or any other emotional state. "
-          "Additionally, infer any potential psychological or emotional trends they might experience in the near future based on their behavior. "
-          "You must provide exactly five key personality traits that best describe the person in a concise response of no more than five lines.";
+          "Analyze the person's personality based on their speech and facial expressions."
+          "Ignore the content of their speech and focus on their emotional state, confidence level, and non-verbal cues."
+          "Provide a concise summary of their personality traits in five lines.";
 
-      if (!_hasSentDefaultPrompt) {
-        prompt.add(Part.text(defaultPrompt));
-        _hasSentDefaultPrompt = true;
-      }
+      prompt.add(Part.text(defaultPrompt));
 
       if (_userVoiceInput != null && _userVoiceInput!.isNotEmpty) {
-        prompt.add(Part.text("Speech input: $_userVoiceInput"));
+        prompt.add(Part.text(
+            "Speech input (for tone analysis only): $_userVoiceInput"));
       }
 
       for (final frame in _capturedFrames) {
@@ -188,8 +183,6 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
         if (await imageFile.exists()) {
           final imageBytes = await imageFile.readAsBytes();
           prompt.add(Part.inline(InlineData.fromUint8List(imageBytes)));
-        } else {
-          print('Frame file not found: ${frame.path}');
         }
       }
 
