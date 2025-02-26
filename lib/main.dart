@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:personlayze/screens/HomePage.dart';
+import 'package:personlayze/screens/SplacsScreen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -15,9 +16,9 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
      initialRoute: '/home',
     routes: {
-      '/home': (context) => const HomePage(),
-      '/performance': (context) => const HomePage(),
-      '/profile': (context) => const HomePage(),
+      '/home': (context) =>  SplashScreen(),
+      '/performance': (context) =>  HomePage(),
+      '/profile': (context) =>  HomePage(),
     },
     );
   }
