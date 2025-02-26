@@ -45,5 +45,15 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSCameraUsageDescription</key>
+	<string>We need camera access for live AI analysis.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need microphone access for video recording.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>We need access to your photo library to save and upload images.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>We need permission to save images to your photo library.</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>We use Face ID for secure authentication.</string>
 </dict>
 </plist>

@@ -7,14 +7,14 @@ import 'package:personlayze/widgets/CustomFeatureButton.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
-  
+  const HomePage({super.key});
+
   @override
   _HomePageState createState() => _HomePageState();
 }
 
 class _HomePageState extends State<HomePage> {
-  int _selectedIndex = 0; 
+  int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
     if (index == _selectedIndex) return;
@@ -33,110 +33,106 @@ class _HomePageState extends State<HomePage> {
       case 2:
         Navigator.pushReplacementNamed(context, '/profile');
         break;
-     
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-     
-      body: Container(
-        decoration: const BoxDecoration(
-          color: Colors.white
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            
-             CustomHeader(
-              title: "Personalyze",
-              
-              icon: Icons.person,
-             
-            ),
-             SizedBox(height: 16),
-           
-             Text(
-               "Hi User",
-               style: TextStyle(
-                 fontSize: 24,
-                 fontWeight: FontWeight.bold,
-                 color: Colors.black87,
-               ),
-             ),
-            const SizedBox(height: 8),
-            
-            TextField(
-              decoration: InputDecoration(
-                hintText: "Search or enter command",
-                prefixIcon: const Icon(Icons.search),
-                filled: true,
-                fillColor: Colors.transparent.withOpacity(0.2),
-                contentPadding: const EdgeInsets.symmetric(
-                  vertical: 12,
-                  horizontal: 16,
-                ),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
-                ),
-              
-                enabledBorder: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(25),
-                  borderSide: BorderSide.none,
+      body: SafeArea(
+        // Prevents UI overlap
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Custom Header
+              const CustomHeader(title: "Personalyze", icon: Icons.person),
+              const SizedBox(height: 16),
+
+              // Welcome Text
+              const Text(
+                "Hi User",
+                style: TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
                 ),
               ),
-            ),
-             SizedBox(height: 16),
-          
-            Expanded(
-              child: GridView.count(
-                crossAxisCount: 2, 
-                crossAxisSpacing: 16, 
-                mainAxisSpacing: 16, 
-                children:  [
-                  CustomFeatureButton(
-                    // data: "Live AI Analysis",
-                    imageLocation: "assets/images/ai.svg",
-                    onTap: () { 
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> LiveAnalysisPage()));
+              const SizedBox(height: 8),
 
-                    },
-                   
+              // Search Bar
+              TextField(
+                decoration: InputDecoration(
+                  hintText: "Search or enter command",
+                  prefixIcon: const Icon(Icons.search),
+                  filled: true,
+                  fillColor: Colors.grey.withOpacity(0.2),
+                  contentPadding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                    borderSide: BorderSide.none,
                   ),
-                  CustomFeatureButton(
-                    // data: "Live AI Analysis",
-                    imageLocation: "assets/images/customization.svg",
-                    onTap: () { 
-                       Navigator.push(context, MaterialPageRoute(builder: (context)=> SpeechAndFluencyPage()));
-
-                    }
-                    
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(25),
+                    borderSide: BorderSide.none,
                   ),
-                  CustomFeatureButton(
-                  //  data: "Live AI Analysis",
-                   imageLocation: "assets/images/ai.svg",
-                   onTap: () { 
-                     Navigator.push(context, MaterialPageRoute(builder: (context)=> CustomizationPage()));
-
-                    }
-                  ),
-                  CustomFeatureButton(
-                    // data: "Live AI Analysis",
-                    imageLocation: "assets/images/ai.svg",
-                    onTap: () { 
-
-                    }
-                  ),
-                ],
+                ),
               ),
-            ),
-            const SizedBox(height: 8),
-          ],
+              const SizedBox(height: 16),
+
+              // Feature Grid
+              Expanded(
+                child: GridView.builder(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 16,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 1,
+                  ),
+                  itemCount: 4,
+                  itemBuilder: (context, index) {
+                    final featureData = [
+                      {
+                        "image": "assets/images/ai.jpg",
+                        "onTap": () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => LiveAnalysisPage())),
+                      },
+                      {
+                        "image": "assets/images/customization.jpg",
+                        "onTap": () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => SpeechAndFluencyPage())),
+                      },
+                      {
+                        "image": "assets/images/14.jpg",
+                        "onTap": () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => CustomizationPage())),
+                      },
+                      {
+                        "image": "assets/images/speech.jpg",
+                        "onTap": () {},
+                      },
+                    ];
+
+                    return CustomFeatureButton(
+                      imageLocation: featureData[index]["image"] as String,
+                      onTap: featureData[index]["onTap"] as VoidCallback,
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-     
       bottomNavigationBar: BottomNavBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,

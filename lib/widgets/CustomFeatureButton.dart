@@ -1,35 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 
 class CustomFeatureButton extends StatelessWidget {
-  // final String data;
   final String imageLocation;
-  final VoidCallback onTap; 
+  final VoidCallback onTap;
 
   const CustomFeatureButton({
-    // required this.data,
     required this.imageLocation,
-    required this.onTap, 
+    required this.onTap,
     super.key,
   });
 
   @override
   Widget build(BuildContext context) {
     return Material(
-      child: GestureDetector(
-        onTap: onTap, 
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(20),
         child: Container(
-          height: MediaQuery.of(context).size.height * 0.2,
-          width: MediaQuery.of(context).size.width * 0.22,
+          padding: const EdgeInsets.all(0),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(25),
-            
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: Colors.black,
+              width: 2,
+            ),
           ),
-          alignment: Alignment.center, 
-          child: SvgPicture.asset(imageLocation, fit: BoxFit.contain,)
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(18),
+            child: AspectRatio(
+              aspectRatio: 1,
+              child: Image.asset(
+                imageLocation,
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
         ),
-      );
-    
+      ),
+    );
   }
 }
