@@ -51,11 +51,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
   void _startAnimation() async {
     for (int i = 0; i < controllers.length; i++) {
-      await Future.delayed(Duration(milliseconds: 200)); // Delay between letters
+      await Future.delayed(Duration(milliseconds: 200)); 
       controllers[i].forward();
     }
 
-    // Navigate to next screen after animation
+  
     Future.delayed(Duration(seconds: 1), () {
       Navigator.pushReplacement(
           context, MaterialPageRoute(builder: (context) => HomePage()));
