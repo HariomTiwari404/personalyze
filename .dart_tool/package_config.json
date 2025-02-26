@@ -80,6 +80,18 @@
       "languageVersion": "3.1"
     },
     {
+      "name": "dio",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/dio-5.8.0+1",
+      "packageUri": "lib/",
+      "languageVersion": "2.18"
+    },
+    {
+      "name": "dio_web_adapter",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/dio_web_adapter-2.1.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "fake_async",
       "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/fake_async-1.3.2",
       "packageUri": "lib/",
@@ -90,6 +102,12 @@
       "rootUri": "file:///Users/hariomtiwari/development/flutter/packages/flutter",
       "packageUri": "lib/",
       "languageVersion": "3.7"
+    },
+    {
+      "name": "flutter_gemini",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/flutter_gemini-3.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "flutter_lints",
@@ -134,6 +152,12 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "json_annotation",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/json_annotation-4.9.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
+    },
+    {
       "name": "leak_tracker",
       "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/leak_tracker-10.0.8",
       "packageUri": "lib/",
@@ -176,6 +200,12 @@
       "languageVersion": "2.12"
     },
     {
+      "name": "mime",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/mime-2.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "path",
       "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/path-1.9.1",
       "packageUri": "lib/",
@@ -186,6 +216,12 @@
       "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/path_parsing-1.1.0",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "pedantic",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/pedantic-1.11.1",
+      "packageUri": "lib/",
+      "languageVersion": "2.12"
     },
     {
       "name": "petitparser",
@@ -210,6 +246,18 @@
       "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/source_span-1.10.1",
       "packageUri": "lib/",
       "languageVersion": "3.1"
+    },
+    {
+      "name": "speech_to_text",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/speech_to_text-7.0.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "speech_to_text_platform_interface",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/speech_to_text_platform_interface-2.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.0"
     },
     {
       "name": "stack_trace",
@@ -302,7 +350,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-02-26T10:58:41.988431Z",
+  "generated": "2025-02-26T18:01:26.022935Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///Users/hariomtiwari/development/flutter",

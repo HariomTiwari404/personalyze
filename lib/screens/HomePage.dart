@@ -40,17 +40,14 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        // Prevents UI overlap
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Custom Header
               const CustomHeader(title: "Personalyze", icon: Icons.person),
               const SizedBox(height: 16),
 
-              // Welcome Text
               const Text(
                 "Hi User",
                 style: TextStyle(
@@ -61,7 +58,6 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 8),
 
-              // Search Bar
               TextField(
                 decoration: InputDecoration(
                   hintText: "Search or enter command",

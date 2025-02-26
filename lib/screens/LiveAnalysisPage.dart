@@ -1,9 +1,10 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:personlayze/constants/colors.dart';
-import 'package:personlayze/screens/DetailedAnalysisPage.dart';
-import 'package:personlayze/widgets/CustomHeader.dart';
-import 'package:personlayze/widgets/CustomOutputButton.dart';
+import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class LiveAnalysisPage extends StatefulWidget {
   const LiveAnalysisPage({super.key});
@@ -15,181 +16,205 @@ class LiveAnalysisPage extends StatefulWidget {
 class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
-  bool _isMicEnabled = true;
+  bool _isAnalyzing = false;
+  String? _analysisResult;
+  String? _userVoiceInput;
+  Timer? _captureTimer;
+  final stt.SpeechToText _speechToText = stt.SpeechToText();
+  bool _isListening = false;
 
   @override
   void initState() {
     super.initState();
     _initializeCamera();
+    _initializeSpeechRecognition();
+  }
+
+  Future<void> _initializeSpeechRecognition() async {
+    await _speechToText.initialize();
   }
 
   Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    final frontCamera = cameras.firstWhere(
+        (camera) => camera.lensDirection == CameraLensDirection.front);
+
+    _cameraController = CameraController(frontCamera, ResolutionPreset.medium);
+    await _cameraController!.initialize();
+
+    if (!mounted) return;
+
+    setState(() => _isCameraInitialized = true);
+
+    // Start periodic image capture
+    _captureTimer = Timer.periodic(const Duration(seconds: 10), (_) {
+      if (!_isAnalyzing) {
+        _analyzeVideoFrame();
+      }
+    });
+  }
+
+  Future<void> _startListening() async {
+    if (!_isListening) {
+      setState(() => _isListening = true);
+      _speechToText.listen(
+        onResult: (result) {
+          setState(() {
+            _userVoiceInput = result.recognizedWords;
+          });
+        },
+        listenFor: const Duration(seconds: 30),
+        localeId: 'en_US',
+      );
+    }
+  }
+
+  void _stopListening() {
+    _speechToText.stop();
+    setState(() {
+      _isListening = false;
+    });
+  }
+
+  Future<void> _analyzeVideoFrame() async {
+    if (!_isCameraInitialized || _isAnalyzing) return;
+
+    setState(() => _isAnalyzing = true);
+
     try {
-      final cameras = await availableCameras();
-      final frontCamera = cameras.firstWhere(
-          (camera) => camera.lensDirection == CameraLensDirection.front);
+      final XFile frame = await _cameraController!.takePicture();
+      final File imageFile = File(frame.path);
 
-      _cameraController =
-          CameraController(frontCamera, ResolutionPreset.ultraHigh);
+      if (!await imageFile.exists()) {
+        print('Frame capture failed');
+        return;
+      }
 
-      await _cameraController!.initialize();
-      if (!mounted) return;
+      final imageBytes = await imageFile.readAsBytes();
 
-      setState(() => _isCameraInitialized = true);
-    } catch (e) {
-      setState(() => _isCameraInitialized = false);
-    }
-  }
+      final prompt = [
+        Part.text(_userVoiceInput ?? 'Analyze the content of this image'),
+        Part.inline(InlineData.fromUint8List(imageBytes)),
+      ];
 
-  void _toggleCamera() {
-    if (_isCameraInitialized) {
-      _cameraController?.dispose();
+      final response = await Gemini.instance.prompt(parts: prompt);
+
       setState(() {
-        _isCameraInitialized = false;
-        _cameraController = null;
+        _analysisResult = response?.output ?? 'No analysis result';
       });
-    } else {
-      _initializeCamera();
+    } catch (e) {
+      setState(() {
+        _analysisResult = 'Analysis failed: $e';
+      });
+    } finally {
+      setState(() => _isAnalyzing = false);
     }
-  }
-
-  void _toggleMicrophone() {
-    setState(() => _isMicEnabled = !_isMicEnabled);
   }
 
   @override
   void dispose() {
     _cameraController?.dispose();
+    _captureTimer?.cancel();
+    _speechToText.stop();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              const CustomHeader(title: "Live A.I Analysis"),
-              const SizedBox(height: 16),
-              Container(
-                height: MediaQuery.of(context).size.height * 0.45,
-                width: MediaQuery.of(context).size.width * 0.9,
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: Colors.grey.shade200,
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 5,
-                      offset: const Offset(2, 3),
-                    ),
-                  ],
-                ),
-                child: _isCameraInitialized
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: AspectRatio(
-                          aspectRatio: _cameraController!.value.aspectRatio,
-                          child: CameraPreview(_cameraController!),
-                        ),
-                      )
-                    : Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(Icons.videocam_off,
-                              size: 50, color: Colors.grey.shade600),
-                          const SizedBox(height: 10),
-                          Text(
-                            "Camera is disabled",
-                            style: TextStyle(
-                                fontSize: 16, color: Colors.grey.shade700),
-                          ),
-                        ],
-                      ),
-              ),
-              const SizedBox(height: 20),
-              const SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: _isCameraInitialized
-                        ? Colors.red.shade600
-                        : Colors.green.shade600,
-                    child: IconButton(
-                      icon: Icon(
-                        _isCameraInitialized
-                            ? Icons.videocam_off
-                            : Icons.videocam,
-                        color: Colors.white,
-                      ),
-                      onPressed: _toggleCamera,
-                    ),
-                  ),
-                  const SizedBox(width: 20),
-                  CircleAvatar(
-                    radius: 28,
-                    backgroundColor: _isMicEnabled
-                        ? Colors.red.shade600
-                        : Colors.green.shade600,
-                    child: IconButton(
-                      icon: Icon(
-                        _isMicEnabled ? Icons.mic_off : Icons.mic,
-                        color: Colors.white,
-                      ),
-                      onPressed: _toggleMicrophone,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              CustomOutputButton(
-                color: AppColors.outputButton,
-                title: 'AI Analysis Output',
-                subTitle:
-                    "This is a placeholder text for AI analysis results. Detailed results will be displayed here.",
-              ),
-              const SizedBox(height: 20),
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (context) => DetailedAnalysisPage()),
-                  );
-                },
+      appBar: AppBar(
+        title: const Text('AI Live Analysis'),
+        backgroundColor: Colors.deepPurple,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.deepPurple.shade200, Colors.deepPurple.shade400],
+          ),
+        ),
+        child: Column(
+          children: [
+            if (_isCameraInitialized)
+              Expanded(
+                flex: 3,
                 child: Container(
-                  height: 55,
-                  width: MediaQuery.of(context).size.width * 0.8,
+                  margin: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
-                    color: AppColors.btnColor,
-                    borderRadius: BorderRadius.circular(16),
+                    borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withOpacity(0.2),
-                        blurRadius: 5,
-                        offset: const Offset(2, 3),
+                        spreadRadius: 2,
+                        blurRadius: 10,
                       ),
                     ],
+                    border: Border.all(color: Colors.white, width: 3),
                   ),
-                  child: const Center(
-                    child: Text(
-                      "View Detailed Analysis",
-                      style: TextStyle(
-                          fontSize: 16,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold),
-                    ),
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(20),
+                    child: CameraPreview(_cameraController!),
                   ),
                 ),
               ),
-            ],
-          ),
+            Expanded(
+              flex: 2,
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.9),
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            _isListening ? Icons.mic : Icons.mic_none,
+                            color:
+                                _isListening ? Colors.red : Colors.deepPurple,
+                            size: 40,
+                          ),
+                          onPressed:
+                              _isListening ? _stopListening : _startListening,
+                        ),
+                        const SizedBox(width: 20),
+                        ElevatedButton(
+                          onPressed: _analyzeVideoFrame,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.deepPurple,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                          ),
+                          child: const Text('Analyze Frame'),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Text(
+                          _analysisResult ?? 'Waiting for analysis...',
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.black87,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
