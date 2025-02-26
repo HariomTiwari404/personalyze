@@ -29,10 +29,8 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
       final frontCamera = cameras.firstWhere(
           (camera) => camera.lensDirection == CameraLensDirection.front);
 
-      _cameraController = CameraController(
-        frontCamera,
-        ResolutionPreset.medium,
-      );
+      _cameraController =
+          CameraController(frontCamera, ResolutionPreset.ultraHigh);
 
       await _cameraController!.initialize();
       if (!mounted) return;
@@ -99,7 +97,19 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                           child: CameraPreview(_cameraController!),
                         ),
                       )
-                    : const Center(child: CircularProgressIndicator()),
+                    : Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(Icons.videocam_off,
+                              size: 50, color: Colors.grey.shade600),
+                          const SizedBox(height: 10),
+                          Text(
+                            "Camera is disabled",
+                            style: TextStyle(
+                                fontSize: 16, color: Colors.grey.shade700),
+                          ),
+                        ],
+                      ),
               ),
               const SizedBox(height: 20),
               const SizedBox(height: 20),
