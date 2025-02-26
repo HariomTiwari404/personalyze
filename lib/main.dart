@@ -4,7 +4,7 @@ import 'package:personlayze/screens/HomePage.dart';
 import 'package:personlayze/screens/SplacsScreen.dart';
 
 void main() {
-  const apiKey = 'AIzaSyBLeNZPjRcR4u2osIfqJ2wHN1-jgQw-kRU';
+  const apiKey = 'AIzaSyAv1SPDJs6-MnFOZjScR_x5j4KECvwsDAE';
   Gemini.init(apiKey: apiKey);
   runApp(const MyApp());
 }

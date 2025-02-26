@@ -2,6 +2,12 @@
   "configVersion": 2,
   "packages": [
     {
+      "name": "animate_do",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/animate_do-4.2.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.1"
+    },
+    {
       "name": "args",
       "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/args-2.6.0",
       "packageUri": "lib/",
@@ -350,7 +356,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-02-26T18:01:26.022935Z",
+  "generated": "2025-02-26T19:28:34.976033Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///Users/hariomtiwari/development/flutter",
