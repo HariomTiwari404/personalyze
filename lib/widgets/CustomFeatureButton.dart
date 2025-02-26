@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 
 class CustomFeatureButton extends StatelessWidget {
-  final String data;
+  // final String data;
+  final String imageLocation;
   final VoidCallback onTap; 
 
   const CustomFeatureButton({
-    required this.data,
+    // required this.data,
+    required this.imageLocation,
     required this.onTap, 
     super.key,
   });
@@ -20,15 +23,13 @@ class CustomFeatureButton extends StatelessWidget {
           width: MediaQuery.of(context).size.width * 0.22,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(25),
-            color: Colors.grey,
+            
           ),
           alignment: Alignment.center, 
-          child: Text(
-            data,
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          child: SvgPicture.asset(imageLocation, fit: BoxFit.contain,)
           ),
         ),
-      ),
-    );
+      );
+    
   }
 }

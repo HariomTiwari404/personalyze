@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:personlayze/screens/CustomizationPage.dart';
 import 'package:personlayze/screens/LiveAnalysisPage.dart';
+import 'package:personlayze/screens/SpeechAndFluencyPage.dart';
 import 'package:personlayze/widgets/BottomNavBar.dart';
 import 'package:personlayze/widgets/CustomFeatureButton.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
@@ -95,7 +97,8 @@ class _HomePageState extends State<HomePage> {
                 mainAxisSpacing: 16, 
                 children:  [
                   CustomFeatureButton(
-                    data: "Live AI Analysis",
+                    // data: "Live AI Analysis",
+                    imageLocation: "assets/images/ai.svg",
                     onTap: () { 
                       Navigator.push(context, MaterialPageRoute(builder: (context)=> LiveAnalysisPage()));
 
@@ -103,20 +106,25 @@ class _HomePageState extends State<HomePage> {
                    
                   ),
                   CustomFeatureButton(
-                    data: "Live AI Analysis",
+                    // data: "Live AI Analysis",
+                    imageLocation: "assets/images/customization.svg",
                     onTap: () { 
+                       Navigator.push(context, MaterialPageRoute(builder: (context)=> SpeechAndFluencyPage()));
 
                     }
                     
                   ),
                   CustomFeatureButton(
-                   data: "Live AI Analysis",
+                  //  data: "Live AI Analysis",
+                   imageLocation: "assets/images/ai.svg",
                    onTap: () { 
+                     Navigator.push(context, MaterialPageRoute(builder: (context)=> CustomizationPage()));
 
                     }
                   ),
                   CustomFeatureButton(
-                    data: "Live AI Analysis",
+                    // data: "Live AI Analysis",
+                    imageLocation: "assets/images/ai.svg",
                     onTap: () { 
 
                     }

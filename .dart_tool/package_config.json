@@ -2,6 +2,12 @@
   "configVersion": 2,
   "packages": [
     {
+      "name": "args",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/args-2.6.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
       "name": "async",
       "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/async-2.11.0",
       "packageUri": "lib/",
@@ -56,10 +62,28 @@
       "languageVersion": "3.5"
     },
     {
+      "name": "flutter_svg",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/flutter_svg-2.0.17",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "flutter_test",
       "rootUri": "file:///Users/roshansingh/flutter/packages/flutter_test",
       "packageUri": "lib/",
       "languageVersion": "3.3"
+    },
+    {
+      "name": "http",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/http-1.3.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "http_parser",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/http_parser-4.1.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
     },
     {
       "name": "leak_tracker",
@@ -110,6 +134,18 @@
       "languageVersion": "3.0"
     },
     {
+      "name": "path_parsing",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/path_parsing-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.3"
+    },
+    {
+      "name": "petitparser",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/petitparser-6.0.2",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "sky_engine",
       "rootUri": "file:///Users/roshansingh/flutter/bin/cache/pkg/sky_engine",
       "packageUri": "lib/",
@@ -152,6 +188,30 @@
       "languageVersion": "3.4"
     },
     {
+      "name": "typed_data",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/typed_data-1.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.5"
+    },
+    {
+      "name": "vector_graphics",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/vector_graphics-1.1.18",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "vector_graphics_codec",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/vector_graphics_codec-1.1.13",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "vector_graphics_compiler",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/vector_graphics_compiler-1.1.16",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "vector_math",
       "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/vector_math-2.1.4",
       "packageUri": "lib/",
@@ -164,13 +224,25 @@
       "languageVersion": "3.3"
     },
     {
+      "name": "web",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/web-1.1.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
+      "name": "xml",
+      "rootUri": "file:///Users/roshansingh/.pub-cache/hosted/pub.dev/xml-6.5.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
       "name": "personlayze",
       "rootUri": "../",
       "packageUri": "lib/",
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-02-26T01:51:31.055360Z",
+  "generated": "2025-02-26T07:38:23.423155Z",
   "generator": "pub",
   "generatorVersion": "3.6.0",
   "flutterRoot": "file:///Users/roshansingh/flutter",
