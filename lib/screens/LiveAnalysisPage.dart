@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 import 'package:personlayze/constants/colors.dart';
 import 'package:personlayze/screens/DetailedAnalysisPage.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
@@ -10,18 +11,42 @@ class LiveAnalysisPage extends StatefulWidget {
 }
 
 class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
+  CameraController? _cameraController;
+  bool _isCameraInitialized = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initializeCamera();
+  }
+
+  Future<void> _initializeCamera() async {
+    final cameras = await availableCameras();
+    _cameraController = CameraController(
+      cameras[0], 
+      ResolutionPreset.medium,
+    );
+
+    await _cameraController!.initialize();
+    if (!mounted) return;
+
+    setState(() {
+      _isCameraInitialized = true;
+    });
+  }
+
+  @override
+  void dispose() {
+    _cameraController?.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
-          decoration: BoxDecoration(
-            // gradient: LinearGradient(
-            //   colors: [Colors.blueGrey.shade900, Colors.blueGrey.shade700],
-            //   begin: Alignment.topCenter,
-            //   end: Alignment.bottomCenter,
-            // ),
-          ),
+          decoration: BoxDecoration(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
@@ -35,28 +60,17 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                   decoration: BoxDecoration(
                     color: Colors.white.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(16),
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: Colors.black.withOpacity(0.2),
-                    //     blurRadius: 8,
-                    //     spreadRadius: 2,
-                    //     offset: Offset(2, 4),
-                    //   ),
-                    // ],
                   ),
-                  child: Center(
-                    child: Text(
-                      "Camera",
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white70,
-                      ),
-                    ),
-                  ),
+                  child: _isCameraInitialized
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: CameraPreview(_cameraController!),
+                        )
+                      : Center(
+                          child: CircularProgressIndicator(),
+                        ),
                 ),
-                    
-                 SizedBox(height: 20),
+                SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {},
                   style: ElevatedButton.styleFrom(
@@ -72,9 +86,12 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                     style: TextStyle(fontSize: 16, color: Colors.white),
                   ),
                 ),
-                    
-                 SizedBox(height: 20),
-                CustomOutputButton(color:AppColors.outputButton , title: 'Output', subTitle: 'Lorem ipsum (/ˌlɔː.rəm ˈɪp.səm/ LOR-əm IP-səm) is a dummy or placeholder text commonly used in graphic design, publishing, t',),
+                SizedBox(height: 20),
+                CustomOutputButton(
+                  color: AppColors.outputButton,
+                  title: 'Output',
+                  subTitle: 'Lorem ipsum (/ˌlɔː.rəm ˈɪp.səm/ LOR-əm IP-səm) is a dummy or placeholder text commonly used in graphic design, publishing, t',
+                ),
                 SizedBox(height: 20),
                 GestureDetector(
                   onTap: () {

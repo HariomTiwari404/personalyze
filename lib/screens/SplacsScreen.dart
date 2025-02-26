@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:personlayze/constants/colors.dart';
 import 'dart:async';
 
 import 'package:personlayze/screens/HomePage.dart';
@@ -73,7 +74,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: AppColors.bgColor,
       body: Center(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -85,7 +86,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
                 style: TextStyle(
                   fontSize: 40,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: Colors.black,
                   letterSpacing: 2.0,
                 ),
               ),
