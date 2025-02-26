@@ -201,8 +201,11 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                   right: 0,
                   child: Container(
                     padding: const EdgeInsets.all(16),
+                    constraints: const BoxConstraints(
+                      maxHeight: 250, // Limits height but allows scrolling
+                    ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.1),
+                      color: Colors.black.withOpacity(0.6),
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(20),
                       ),
@@ -210,13 +213,17 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(
-                          _analysisResult ?? 'Waiting for analysis...',
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                            height: 1.4,
+                        Expanded(
+                          child: SingleChildScrollView(
+                            child: Text(
+                              _analysisResult ?? 'Waiting for analysis...',
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.white,
+                                height: 1.4,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
