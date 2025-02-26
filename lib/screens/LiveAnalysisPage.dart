@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
+import 'package:image/image.dart' as img; // Import the image package
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class LiveAnalysisPage extends StatefulWidget {
@@ -14,7 +16,7 @@ class LiveAnalysisPage extends StatefulWidget {
 }
 
 class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
-  bool _isCapturing = false; // Add this flag
+  final bool _isCapturing = false; // Add this flag
 
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
@@ -46,7 +48,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
 
     _cameraController = CameraController(
       frontCamera,
-      ResolutionPreset.ultraHigh,
+      ResolutionPreset.low,
       enableAudio: false,
     );
     await _cameraController!.initialize();
@@ -61,13 +63,13 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
       setState(() => _isListening = true);
       _capturedFrames.clear();
       _userVoiceInput = null;
+
       _speechToText.listen(
         onResult: (result) {
           setState(() {
             _userVoiceInput = result.recognizedWords;
-            _captureFrame();
-            _resetAnalysisTimer();
           });
+          _resetAnalysisTimer();
         },
         onSoundLevelChange: (level) {
           _resetAnalysisTimer();
@@ -77,8 +79,71 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
         pauseFor: const Duration(seconds: 3),
         localeId: 'en_US',
       );
+
+      _startCaptureTimer(); // Start the timer to capture frames every 2 secs
       _resetAnalysisTimer();
     }
+  }
+
+  void _startCaptureTimer() {
+    _captureTimer?.cancel(); // Cancel previous timer if any
+    _captureTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
+      if (_isListening) {
+        _captureFrame();
+      } else {
+        timer.cancel(); // Stop capturing when listening stops
+      }
+    });
+  }
+
+  Future<void> _captureFrame() async {
+    if (_isCameraInitialized && _isListening) {
+      try {
+        await _cameraController!.setFlashMode(FlashMode.off);
+        final XFile frame = await _cameraController!.takePicture();
+
+        File originalFile = File(frame.path);
+        if (!await originalFile.exists()) return;
+
+        // Read image bytes
+        Uint8List imageBytes = await originalFile.readAsBytes();
+        img.Image? decodedImage = img.decodeImage(imageBytes);
+
+        if (decodedImage != null) {
+          // Resize image (adjust resolution to reduce size)
+          img.Image resizedImage = img.copyResize(decodedImage,
+              width: 800); // Adjust width to control size
+
+          // Compress image to JPEG with lower quality
+          List<int> compressedBytes = img.encodeJpg(resizedImage,
+              quality: 85); // Adjust quality (lower = smaller size)
+
+          // Save the compressed image to a temporary file
+          File compressedFile = File(frame.path)
+            ..writeAsBytesSync(compressedBytes);
+
+          if (compressedFile.lengthSync() <= 1024 * 1024) {
+            // Ensure it's under 1MB
+            setState(() {
+              _capturedFrames.add(XFile(compressedFile.path));
+            });
+          } else {
+            print('Compressed image is still too large.');
+          }
+        }
+      } catch (e) {
+        print('Frame capture failed: $e');
+      }
+    }
+  }
+
+  void _stopListening() {
+    _speechToText.stop();
+    _captureTimer?.cancel(); // Stop capturing when listening stops
+    setState(() {
+      _isListening = false;
+    });
+    _analyzeCollectedData();
   }
 
   void _resetAnalysisTimer() {
@@ -88,33 +153,6 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
         _stopListening();
       }
     });
-  }
-
-  Future<void> _captureFrame() async {
-    if (_isCameraInitialized && _isListening && !_isCapturing) {
-      try {
-        _isCapturing = true; // Prevent multiple captures
-
-        await _cameraController!.setFlashMode(FlashMode.off);
-        final frame = await _cameraController!.takePicture();
-
-        setState(() {
-          _capturedFrames.add(frame);
-        });
-      } catch (e) {
-        print('Frame capture failed: $e');
-      } finally {
-        _isCapturing = false; // Allow next capture
-      }
-    }
-  }
-
-  void _stopListening() {
-    _speechToText.stop();
-    setState(() {
-      _isListening = false;
-    });
-    _analyzeCollectedData();
   }
 
   Future<void> _analyzeCollectedData() async {
@@ -129,9 +167,12 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
       List<Part> prompt = [];
 
       const String defaultPrompt =
-          "You are analyzing a person's personality based on their gestures and speech patterns. "
-          "Identify key personality traits such as confidence, nervousness, extroversion, introversion, "
-          "and mood based on their facial expressions and speech content. Provide a concise analysis.";
+          "You are an AI model designed to predict a person's personality based on their facial expressions and speech patterns. "
+          "Your task is to analyze their gestures, emotions, and tone of voice to determine their personality traits. "
+          "Focus only on how they appear and behave, regardless of what they are saying. "
+          "Identify if they seem happy, nervous, confident, sad, or any other emotional state. "
+          "Additionally, infer any potential psychological or emotional trends they might experience in the near future based on their behavior. "
+          "You must provide exactly five key personality traits that best describe the person in a concise response of no more than five lines.";
 
       if (!_hasSentDefaultPrompt) {
         prompt.add(Part.text(defaultPrompt));
@@ -215,13 +256,15 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                       children: [
                         Expanded(
                           child: SingleChildScrollView(
-                            child: Text(
+                            child: SelectableText(
                               _analysisResult ?? 'Waiting for analysis...',
-                              textAlign: TextAlign.center,
+                              textAlign: TextAlign.start,
                               style: const TextStyle(
-                                fontSize: 16,
+                                fontSize: 12,
                                 color: Colors.white,
-                                height: 1.4,
+                                fontFamily: 'inter',
+                                fontWeight: FontWeight.w400,
+                                height: 1.5,
                               ),
                             ),
                           ),
@@ -257,7 +300,10 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                                 _isListening
                                     ? 'Stop Listening'
                                     : 'Start Listening',
-                                style: const TextStyle(color: Colors.white),
+                                textAlign: TextAlign.start,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                ),
                               ),
                             ],
                           ),
