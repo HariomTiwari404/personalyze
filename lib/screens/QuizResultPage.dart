@@ -31,7 +31,6 @@ class _QuizResultPageState extends State<QuizResultPage> {
             ),
             const SizedBox(height: 20),
 
-            // Profile & Result Container
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
