@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:personlayze/model_anal.dart';
 import 'package:personlayze/screens/LiveAnalysisPage.dart';
 import 'package:personlayze/screens/QuizPage.dart';
+import 'package:personlayze/screens/ai_coach.dart';
 import 'package:personlayze/widgets/CustomFeatureButton.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
 
@@ -111,7 +112,10 @@ class _HomePageState extends State<HomePage> {
                       },
                       {
                         "image": "assets/images/speech.jpg",
-                        "onTap": () {},
+                        "onTap": () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => AICoachSection())),
                       },
                     ];
 
