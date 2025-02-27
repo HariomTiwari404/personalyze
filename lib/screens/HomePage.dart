@@ -52,8 +52,8 @@ class _HomePageState extends State<HomePage> {
             children: [
               CustomHeader(
                 title: "Personalyze",
-                icon: Icons.logout, // ✅ Pass only IconData
-                onPressed: _logout, // ✅ Handle logout action
+                icon: Icons.logout,
+                onPressed: _logout,
               ),
 
               const SizedBox(height: 16),
@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
 
               TextField(
                 decoration: InputDecoration(
-                  hintText: "Search or enter command",
+                  hintText: "ASK ASSISTANT TO ANALYZE",
                   prefixIcon: const Icon(Icons.search),
                   filled: true,
                   fillColor: Colors.grey.withOpacity(0.2),
