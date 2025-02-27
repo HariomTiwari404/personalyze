@@ -170,7 +170,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
           "Analyze the person's personality based on their speech and facial expressions."
           "Ignore the content of their speech and focus on their emotional state, confidence level, and non-verbal cues."
           "Provide a concise summary of their personality traits in five lines."
-          "return a json at last like this personality : {condition : sad or haappy or angry}";
+          "return a json at last like this personality : {condition : sad or happy or angry}";
 
       prompt.add(Part.text(defaultPrompt));
 
