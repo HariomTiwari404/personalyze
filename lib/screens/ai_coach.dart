@@ -19,12 +19,8 @@ class _AICoachSectionState extends State<AICoachSection>
   final String _response = '';
   bool _isLoading = false;
   bool _isChatExpanded = false;
-
-  // Animation controller for expanding/collapsing chat
   late AnimationController _animationController;
   late Animation<double> _expandAnimation;
-
-  // Store chat history
   final List<ChatMessage> _chatHistory = [];
 
   @override
@@ -57,29 +53,22 @@ class _AICoachSectionState extends State<AICoachSection>
 
     final docSnapshot = await docRef.get();
 
-    print("Firestore document exists: \${docSnapshot.exists}");
-    print("Firestore document data: \${docSnapshot.data()}");
-
     if (docSnapshot.exists) {
       final data = docSnapshot.data();
       if (data != null && data.containsKey('analysis_history')) {
         List<dynamic> rawHistory = data['analysis_history'];
-        print("Raw analysis history: \$rawHistory");
 
         return rawHistory
             .map<Map<String, dynamic>>((entry) {
               try {
                 if (entry is String) {
-                  String cleanedEntry = entry
-                      .replaceAll("```json", "")
-                      .replaceAll("```", "")
-                      .trim();
+                  String cleanedEntry =
+                      entry.replaceAll("json", "").replaceAll("", "").trim();
                   return jsonDecode(cleanedEntry);
                 } else {
                   return Map<String, dynamic>.from(entry);
                 }
               } catch (e) {
-                print("Error parsing JSON: \$e");
                 return {};
               }
             })
@@ -105,12 +94,10 @@ class _AICoachSectionState extends State<AICoachSection>
         return [];
       }
     } catch (e) {
-      print("Error fetching responses: $e");
       return [];
     }
   }
 
-  // Toggle chat expansion
   void _toggleChatExpansion() {
     setState(() {
       _isChatExpanded = !_isChatExpanded;
@@ -125,11 +112,9 @@ class _AICoachSectionState extends State<AICoachSection>
   Future<String> fetchGeminiResponse(String message) async {
     const apiKey = 'AIzaSyBLeNZPjRcR4u2osIfqJ2wHN1-jgQw-kRU';
 
-    // Fetch both analysis history and quiz responses
     final analysisHistory = await fetchAnalysisHistory();
     final quizResponses = await fetchResponses();
 
-    // Construct the system context
     String systemContext = '''
 You are an AI coach trained to provide personalized guidance based on the user's speech topic and personality traits. 
 
@@ -194,7 +179,6 @@ $message
   }
 
   Future<List<String>> fetchYouTubeVideos() async {
-    // In a production app, move this API key to a secure location
     const apiKey = 'AIzaSyCa2l1LdRh58HO71nuCkIvgEF-N14ZvS4Q';
 
     try {
@@ -242,12 +226,10 @@ $message
     );
   }
 
-  // Send message to AI
   Future<void> _sendMessage() async {
     final userInput = _controller.text;
     if (userInput.isEmpty) return;
 
-    // Add user message to chat
     setState(() {
       _chatHistory.add(ChatMessage(
         text: userInput,
@@ -256,7 +238,6 @@ $message
       _isLoading = true;
     });
 
-    // Clear input field
     _controller.clear();
 
     try {
@@ -293,330 +274,80 @@ $message
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
+        centerTitle: true,
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Colors.white, Colors.purple.shade50],
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: ListView(
-            children: [
-              const SizedBox(height: 16),
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: InkWell(
-                  onTap: _toggleChatExpansion,
-                  borderRadius: BorderRadius.circular(16),
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                Icon(
-                                  Icons.chat_bubble_outline,
-                                  color: Colors.purple[700],
-                                ),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'AI Chat',
-                                  style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.purple[700],
-                                  ),
-                                ),
-                              ],
-                            ),
-                            RotationTransition(
-                              turns: Tween(begin: 0.0, end: 0.5)
-                                  .animate(_expandAnimation),
-                              child: Icon(
-                                Icons.keyboard_arrow_down,
-                                color: Colors.purple[700],
-                              ),
-                            ),
-                          ],
-                        ),
-                        SizeTransition(
-                          sizeFactor: _expandAnimation,
-                          child: Column(
-                            children: [
-                              const SizedBox(height: 16),
-                              // Chat history
-                              if (_chatHistory.isNotEmpty)
-                                Container(
-                                  constraints:
-                                      const BoxConstraints(maxHeight: 300),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: SingleChildScrollView(
-                                    padding: const EdgeInsets.all(12),
-                                    child: Column(
-                                      children: _chatHistory
-                                          .map((message) =>
-                                              _buildChatBubble(message))
-                                          .toList(),
-                                    ),
-                                  ),
-                                ),
-                              if (_chatHistory.isEmpty)
-                                Container(
-                                  padding: const EdgeInsets.all(16),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[100],
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: const Text(
-                                    "Start a conversation with the AI coach...",
-                                    style: TextStyle(
-                                      color: Colors.grey,
-                                      fontStyle: FontStyle.italic,
-                                    ),
-                                  ),
-                                ),
-                              const SizedBox(height: 16),
-                              // Chat input field
-                              Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                  border:
-                                      Border.all(color: Colors.purple.shade200),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.purple.withOpacity(0.1),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 3),
-                                    ),
-                                  ],
-                                ),
-                                child: Row(
-                                  children: [
-                                    Expanded(
-                                      child: TextField(
-                                        controller: _controller,
-                                        decoration: const InputDecoration(
-                                          hintText: 'Type your message',
-                                          contentPadding: EdgeInsets.symmetric(
-                                              horizontal: 16),
-                                          border: InputBorder.none,
-                                        ),
-                                        textInputAction: TextInputAction.send,
-                                        onSubmitted: (_) => _sendMessage(),
-                                      ),
-                                    ),
-                                    _isLoading
-                                        ? Padding(
-                                            padding: const EdgeInsets.all(8.0),
-                                            child: SizedBox(
-                                              height: 24,
-                                              width: 24,
-                                              child: CircularProgressIndicator(
-                                                strokeWidth: 2,
-                                                color: Colors.purple[400],
-                                              ),
-                                            ),
-                                          )
-                                        : IconButton(
-                                            icon: Icon(
-                                              Icons.send_rounded,
-                                              color: Colors.purple[700],
-                                            ),
-                                            onPressed: _sendMessage,
-                                          ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
+      backgroundColor: Colors.grey[50],
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          children: [
+            Expanded(
+              child: ListView(
+                children: [
+                  _buildAIChatCard(),
+                ],
               ),
-              const SizedBox(height: 16),
-              // AI Talk Card
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            _buildInputArea(),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAIChatCard() {
+    return Card(
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: InkWell(
+        onTap: _toggleChatExpansion,
+        borderRadius: BorderRadius.circular(20),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.mic_none_outlined,
-                            color: Colors.blue[700],
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'AI Talk',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.blue[700],
-                            ),
-                          ),
-                        ],
+                      Icon(
+                        Icons.chat_bubble,
+                        color: Colors.indigo[700],
+                        size: 28,
                       ),
-                      const SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 24),
-                        decoration: BoxDecoration(
-                          color: Colors.blue.shade50,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: Column(
-                          children: [
-                            const Text(
-                              'Tap the microphone to start a conversation',
-                              style: TextStyle(color: Colors.black87),
-                            ),
-                            const SizedBox(height: 16),
-                            CircleAvatar(
-                              radius: 32,
-                              backgroundColor: Colors.blue.shade100,
-                              child: IconButton(
-                                icon: Icon(
-                                  Icons.mic,
-                                  color: Colors.blue[700],
-                                  size: 32,
-                                ),
-                                onPressed: () {
-                                  // Microphone logic
-                                },
-                              ),
-                            ),
-                          ],
+                      const SizedBox(width: 12),
+                      Text(
+                        'AI Chat',
+                        style: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.indigo[700],
                         ),
                       ),
                     ],
                   ),
-                ),
+                  RotationTransition(
+                    turns:
+                        Tween(begin: 0.0, end: 0.5).animate(_expandAnimation),
+                    child: Icon(
+                      Icons.expand_more,
+                      color: Colors.indigo[700],
+                      size: 32,
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 16),
-              // Video Suggestions Card
-              Card(
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
+              SizeTransition(
+                sizeFactor: _expandAnimation,
                 child: Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.only(top: 20.0),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        children: [
-                          Icon(
-                            Icons.video_library_outlined,
-                            color: Colors.orange[700],
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Video Recommendations',
-                            style: TextStyle(
-                              fontSize: 20,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.orange[700],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          gradient: LinearGradient(
-                            colors: [
-                              Colors.orange.shade50,
-                              Colors.amber.shade50
-                            ],
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                          ),
-                        ),
-                        child: TextButton(
-                          onPressed: () async {
-                            setState(() {
-                              _isLoading = true;
-                            });
-
-                            try {
-                              final videos = await fetchYouTubeVideos();
-                              setState(() {
-                                _isLoading = false;
-                              });
-                              _showVideos(videos);
-                            } catch (e) {
-                              setState(() {
-                                _isLoading = false;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'Error: Unable to fetch videos. ${e.toString()}'),
-                                    backgroundColor: Colors.red.shade400,
-                                  ),
-                                );
-                              });
-                            }
-                          },
-                          style: TextButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _isLoading
-                                  ? SizedBox(
-                                      height: 24,
-                                      width: 24,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        color: Colors.orange[700],
-                                      ),
-                                    )
-                                  : Icon(
-                                      Icons.play_circle_fill,
-                                      color: Colors.orange[700],
-                                    ),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Get Video Suggestions',
-                                style: TextStyle(
-                                  color: Colors.orange[700],
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+                      _buildChatHistory(),
                     ],
                   ),
                 ),
@@ -628,62 +359,116 @@ $message
     );
   }
 
-  // Custom chat bubble widget
-  Widget _buildChatBubble(ChatMessage message) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
-        mainAxisAlignment:
-            message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (!message.isUser)
-            CircleAvatar(
-              backgroundColor: Colors.purple[100],
-              radius: 16,
-              child: Icon(
-                Icons.smart_toy_outlined,
-                size: 16,
-                color: Colors.purple[700],
-              ),
-            ),
-          if (!message.isUser) const SizedBox(width: 8),
-          Flexible(
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-              decoration: BoxDecoration(
-                color: message.isUser
-                    ? Colors.purple[100]
-                    : (message.isError ? Colors.red.shade100 : Colors.white),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 2,
-                    offset: const Offset(0, 1),
+  Widget _buildChatHistory() {
+    return Container(
+      constraints: const BoxConstraints(maxHeight: 300),
+      decoration: BoxDecoration(
+        color: Colors.grey[100],
+        borderRadius: BorderRadius.circular(15),
+      ),
+      child: _chatHistory.isEmpty
+          ? Center(
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  "Start a conversation with the AI coach...",
+                  style: TextStyle(
+                    color: Colors.grey[600],
+                    fontStyle: FontStyle.italic,
+                    fontSize: 16,
                   ),
-                ],
-              ),
-              child: Text(
-                message.text,
-                style: TextStyle(
-                  color: message.isError ? Colors.red.shade900 : Colors.black87,
                 ),
               ),
+            )
+          : ListView.builder(
+              padding: const EdgeInsets.all(12),
+              itemCount: _chatHistory.length,
+              itemBuilder: (context, index) {
+                return _buildChatBubble(_chatHistory[index]);
+              },
+            ),
+    );
+  }
+
+  Widget _buildInputArea() {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.3),
+            spreadRadius: 2,
+            blurRadius: 7,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: 'Type your message...',
+                border: InputBorder.none,
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                hintStyle: TextStyle(color: Colors.grey[600]),
+              ),
+              style: const TextStyle(fontSize: 16),
+              textInputAction: TextInputAction.send,
+              onSubmitted: (_) => _sendMessage(),
             ),
           ),
-          if (message.isUser) const SizedBox(width: 8),
-          if (message.isUser)
-            CircleAvatar(
-              backgroundColor: Colors.purple[700],
-              radius: 16,
-              child: const Icon(
-                Icons.person,
-                size: 16,
-                color: Colors.white,
-              ),
-            ),
+          _isLoading
+              ? Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 3,
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Colors.indigo.shade400),
+                  ),
+                )
+              : IconButton(
+                  icon: Icon(Icons.send, color: Colors.indigo[700], size: 28),
+                  onPressed: _sendMessage,
+                ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildChatBubble(ChatMessage message) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      alignment: message.isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+          color: message.isUser
+              ? Colors.indigo[100]
+              : (message.isError ? Colors.red[100]! : Colors.white),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.2),
+              spreadRadius: 1,
+              blurRadius: 5,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: Text(
+          message.text,
+          style: TextStyle(
+            color: message.isError ? Colors.red[900] : Colors.black87,
+            fontSize: 16,
+          ),
+        ),
       ),
     );
   }
