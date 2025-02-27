@@ -259,22 +259,25 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                   bottom: 0,
                   left: 0,
                   right: 0,
-                  child: SizedBox(
-                    height: 300,
-                    child: Expanded(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      maxHeight: MediaQuery.of(context).size.height * 0.5,
+                    ),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        borderRadius: const BorderRadius.vertical(
+                          top: Radius.circular(20),
+                        ),
+                      ),
+                      padding: const EdgeInsets.all(16),
                       child: SingleChildScrollView(
-                        child: _analysisResult != null
+                        child: _isAnalyzing == false
                             ? AnalysisResultWidget(
                                 analysisResult: _analysisResult!)
                             : const Text(
-                                'Waiting for analysis...',
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.white,
-                                  fontFamily: 'Inter',
-                                  fontWeight: FontWeight.w400,
-                                  height: 1.5,
-                                ),
+                                '',
+                                style: TextStyle(color: Colors.white),
                               ),
                       ),
                     ),
@@ -290,7 +293,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                       maxHeight: 250,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.6),
+                      color: Colors.transparent,
                       borderRadius: const BorderRadius.vertical(
                         top: Radius.circular(20),
                       ),
