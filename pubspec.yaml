@@ -40,9 +40,10 @@ dependencies:
   speech_to_text: 
   animate_do: ^4.2.0
   image: ^4.5.3
-  firebase_core: 
-  firebase_auth: 
-  cloud_firestore: 
+  firebase_core: ^3.12.1
+  firebase_auth: ^5.5.1
+  cloud_firestore: ^5.3.0
+
 
 dev_dependencies:
   flutter_test:
