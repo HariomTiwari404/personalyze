@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "185777210158",
+    "project_id": "personalyze-ed347",
+    "storage_bucket": "personalyze-ed347.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:185777210158:android:c4f45bb1755e30b0fa70bf",
+        "android_client_info": {
+          "package_name": "com.example.personlayze"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDyXHDIV8SURcK3-QQINRF72Rc6x_QJZuw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

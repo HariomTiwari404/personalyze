@@ -122,6 +122,24 @@
       "languageVersion": "3.7"
     },
     {
+      "name": "firebase_core",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/firebase_core-3.12.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "firebase_core_platform_interface",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/firebase_core_platform_interface-5.4.0",
+      "packageUri": "lib/",
+      "languageVersion": "3.2"
+    },
+    {
+      "name": "firebase_core_web",
+      "rootUri": "file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/firebase_core_web-2.21.1",
+      "packageUri": "lib/",
+      "languageVersion": "3.4"
+    },
+    {
       "name": "flutter",
       "rootUri": "file:///Users/hariomtiwari/development/flutter/packages/flutter",
       "packageUri": "lib/",
@@ -386,7 +404,7 @@
       "languageVersion": "3.6"
     }
   ],
-  "generated": "2025-02-26T21:03:53.007664Z",
+  "generated": "2025-02-27T10:37:28.623409Z",
   "generator": "pub",
   "generatorVersion": "3.7.0",
   "flutterRoot": "file:///Users/hariomtiwari/development/flutter",
