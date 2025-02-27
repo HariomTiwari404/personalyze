@@ -267,126 +267,28 @@ $message
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'GrowthAI',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
+        title: const Text('GrowthAI',
+            style: TextStyle(fontWeight: FontWeight.bold)),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 0,
         centerTitle: true,
       ),
       backgroundColor: Colors.grey[50],
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            Expanded(
-              child: ListView(
-                children: [
-                  _buildAIChatCard(),
-                ],
-              ),
-            ),
-            _buildInputArea(),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildAIChatCard() {
-    return Card(
-      elevation: 5,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: InkWell(
-        onTap: _toggleChatExpansion,
-        borderRadius: BorderRadius.circular(20),
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Icon(
-                        Icons.chat_bubble,
-                        color: Colors.indigo[700],
-                        size: 28,
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        'AI Chat',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.indigo[700],
-                        ),
-                      ),
-                    ],
-                  ),
-                  RotationTransition(
-                    turns:
-                        Tween(begin: 0.0, end: 0.5).animate(_expandAnimation),
-                    child: Icon(
-                      Icons.expand_more,
-                      color: Colors.indigo[700],
-                      size: 32,
-                    ),
-                  ),
-                ],
-              ),
-              SizeTransition(
-                sizeFactor: _expandAnimation,
-                child: Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: Column(
-                    children: [
-                      _buildChatHistory(),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
+      body: Column(
+        children: [
+          Expanded(child: _buildChatHistory()),
+          _buildInputArea(),
+        ],
       ),
     );
   }
 
   Widget _buildChatHistory() {
-    return Container(
-      constraints: const BoxConstraints(maxHeight: 300),
-      decoration: BoxDecoration(
-        color: Colors.grey[100],
-        borderRadius: BorderRadius.circular(15),
-      ),
-      child: _chatHistory.isEmpty
-          ? Center(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  "Start a conversation with the AI coach...",
-                  style: TextStyle(
-                    color: Colors.grey[600],
-                    fontStyle: FontStyle.italic,
-                    fontSize: 16,
-                  ),
-                ),
-              ),
-            )
-          : ListView.builder(
-              padding: const EdgeInsets.all(12),
-              itemCount: _chatHistory.length,
-              itemBuilder: (context, index) {
-                return _buildChatBubble(_chatHistory[index]);
-              },
-            ),
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: _chatHistory.length,
+      itemBuilder: (context, index) => _buildChatBubble(_chatHistory[index]),
     );
   }
 
