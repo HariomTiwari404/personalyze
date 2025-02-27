@@ -116,30 +116,28 @@ class _AICoachSectionState extends State<AICoachSection>
     final quizResponses = await fetchResponses();
 
     String systemContext = '''
-You are an AI coach trained to provide personalized guidance based on the user's speech topic and personality traits. 
-
-**Priority:** Your response should be **mainly based on the user's speech topic** while considering their personality traits. Keep replies **short and direct**.
+You are an AI coach trained to provide personalized guidance based on the user's personality analysis and previous responses. 
 
 User Profile:
 ${analysisHistory.isNotEmpty ? """
-- **Recent Speech Topic:** ${analysisHistory.last['speech_topic']}
-- **Emotional State:** ${analysisHistory.last['personality']['condition']}
-- **Posture:** ${analysisHistory.last['posture']}
-- **Personality Traits:**
-  - Openness: ${analysisHistory.last['traits']['openness']}/10
-  - Conscientiousness: ${analysisHistory.last['traits']['conscientiousness']}/10
-  - Extraversion: ${analysisHistory.last['traits']['extraversion']}/10
-  - Agreeableness: ${analysisHistory.last['traits']['agreeableness']}/10
-  - Neuroticism: ${analysisHistory.last['traits']['neuroticism']}/10
-- **Communication Style:**
-  - Confidence: ${analysisHistory.last['speech']['confidence']}/10
-  - Fluency: ${analysisHistory.last['speech']['fluency']}/10
+- Emotional State: ${analysisHistory.last['personality']['condition']}
+- Recent Topic: ${analysisHistory.last['speech_topic']}
+- Posture: ${analysisHistory.last['posture']}
+- Personality Traits:
+  * Openness: ${analysisHistory.last['traits']['openness']}/10
+  * Conscientiousness: ${analysisHistory.last['traits']['conscientiousness']}/10
+  * Extraversion: ${analysisHistory.last['traits']['extraversion']}/10
+  * Agreeableness: ${analysisHistory.last['traits']['agreeableness']}/10
+  * Neuroticism: ${analysisHistory.last['traits']['neuroticism']}/10
+- Communication Style:
+  * Confidence: ${analysisHistory.last['speech']['confidence']}/10
+  * Fluency: ${analysisHistory.last['speech']['fluency']}/10
 """ : "No personality analysis available."}
 
 User's Work Style (Based on Quiz):
 ${quizResponses.map((response) => "- ${response['question']}: ${response['selected_answer']}").join('\n')}
 
-**Task:** Provide a **short** and **concise** response to the user's query, primarily based on the speech topic:
+Based on this profile, provide personalized advice for the following user query:
 $message
 ''';
 
