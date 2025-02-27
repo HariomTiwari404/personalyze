@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:personlayze/model_anal.dart';
 import 'package:personlayze/screens/CustomizationPage.dart';
 import 'package:personlayze/screens/LiveAnalysisPage.dart';
-import 'package:personlayze/screens/SpeechAndFluencyPage.dart';
 import 'package:personlayze/widgets/BottomNavBar.dart';
 import 'package:personlayze/widgets/CustomFeatureButton.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
@@ -119,7 +119,7 @@ class _HomePageState extends State<HomePage> {
                         "onTap": () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => SpeechAndFluencyPage())),
+                                builder: (context) => MoodSummaryScreen())),
                       },
                       {
                         "image": "assets/images/14.jpg",

@@ -3,6 +3,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:personlayze/firebase_options.dart';
+import 'package:personlayze/model_anal.dart';
 import 'package:personlayze/screens/HomePage.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
 
@@ -31,6 +32,7 @@ class MyApp extends StatelessWidget {
         '/home': (context) => HomePage(),
         '/performance': (context) => HomePage(),
         '/profile': (context) => HomePage(),
+        '/mood': (context) => MoodSummaryScreen(),
       },
     );
   }
