@@ -164,7 +164,6 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
 
     try {
       List<Part> prompt = [];
-
       const String defaultPrompt =
           "You are an AI analyzing a person's personality based on their speech, facial expressions, and body language. "
           "Follow these strict guidelines to ensure accuracy and minimize hallucination: "
@@ -179,7 +178,10 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
           "   - Extraversion: (0-10) "
           "   - Agreeableness: (0-10) "
           "   - Neuroticism: (0-10) "
-          "7. **Strict Output Format:** Return the following structured JSON response without adding any explanations: "
+          "7. **Speech Characteristics:** Assign numerical ratings (0-10) for: "
+          "   - Confidence: (0-10) "
+          "   - Fluency: (0-10) "
+          "8. **Strict Output Format:** Return the following structured JSON response without adding any explanations: "
           "{ "
           "\"personality\": {\"condition\": \"sad\", \"happy\", \"angry\"}, "
           "\"speech_topic\": \"A short description of what the person is talking about, or 'Cannot be determined'\", "
@@ -190,6 +192,10 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
           "  \"extraversion\": (0-10), "
           "  \"agreeableness\": (0-10), "
           "  \"neuroticism\": (0-10) "
+          "}, "
+          "\"speech\": { "
+          "  \"confidence\": (0-10), "
+          "  \"fluency\": (0-10) "
           "} "
           "}";
 
