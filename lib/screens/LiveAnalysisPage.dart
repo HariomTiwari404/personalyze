@@ -281,18 +281,18 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                             textStyle: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(
-                                  30), // More rounded button
+                              borderRadius: BorderRadius.circular(30),
                             ),
                             backgroundColor: Colors.transparent,
                             shadowColor: Colors.black.withOpacity(0.3),
-                            elevation: 8, // Add depth effect
+                            elevation: 8,
                           ).copyWith(
                             foregroundColor:
                                 WidgetStateProperty.all(Colors.white),
                           ),
-                          onPressed:
-                              _isListening ? _stopListening : _startListening,
+                          onPressed: (_isListening || _isAnalyzing)
+                              ? null
+                              : _startListening, // Disable when analyzing
                           child: Ink(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -323,7 +323,9 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                                   Text(
                                     _isListening
                                         ? 'Stop Listening'
-                                        : 'Start Listening',
+                                        : (_isAnalyzing
+                                            ? 'Analyzing...'
+                                            : 'Start Listening'),
                                     style: const TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.bold,
