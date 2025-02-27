@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:personlayze/model_anal.dart';
 import 'package:personlayze/screens/CustomizationPage.dart';
 import 'package:personlayze/screens/LiveAnalysisPage.dart';
-import 'package:personlayze/widgets/BottomNavBar.dart';
 import 'package:personlayze/widgets/CustomFeatureButton.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
 
@@ -45,33 +44,20 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Home"),
-        actions: [
-          IconButton(
-            icon: Icon(Icons.logout),
-            onPressed: _logout,
-            tooltip: "Logout",
-          ),
-        ],
-      ),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const CustomHeader(title: "Personalyze", icon: Icons.person),
+              CustomHeader(
+                title: "Personalyze",
+                icon: Icons.logout, // ✅ Pass only IconData
+                onPressed: _logout, // ✅ Handle logout action
+              ),
+
               const SizedBox(height: 16),
 
-              const Text(
-                "Hi User",
-                style: TextStyle(
-                  fontSize: 24,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
               const SizedBox(height: 8),
 
               TextField(
@@ -144,10 +130,6 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         ),
-      ),
-      bottomNavigationBar: BottomNavBar(
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
       ),
     );
   }
