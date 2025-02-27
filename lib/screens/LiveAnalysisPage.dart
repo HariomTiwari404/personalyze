@@ -17,8 +17,6 @@ class LiveAnalysisPage extends StatefulWidget {
 }
 
 class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
-  final bool _isCapturing = false; // Add this flag
-  final double _soundLevel = 0.0;
   final List<double> _soundLevels = List.filled(20, 0.0);
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
@@ -28,7 +26,6 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   Timer? _captureTimer;
   final stt.SpeechToText _speechToText = stt.SpeechToText();
   bool _isListening = false;
-  final bool _hasSentDefaultPrompt = false;
   final List<XFile> _capturedFrames = [];
   Timer? _analysisTimer;
 
@@ -94,12 +91,12 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   }
 
   void _startCaptureTimer() {
-    _captureTimer?.cancel(); // Cancel previous timer if any
+    _captureTimer?.cancel();
     _captureTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
       if (_isListening) {
         _captureFrame();
       } else {
-        timer.cancel(); // Stop capturing when listening stops
+        timer.cancel();
       }
     });
   }
@@ -172,9 +169,11 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
 
       const String defaultPrompt =
           "Analyze the person's personality based on their speech and facial expressions."
+          "Analyse the base color and design of the person's attire."
           "Ignore the content of their speech and focus on their emotional state, confidence level, and non-verbal cues."
-          "Provide a concise summary of their personality traits in five lines."
-          "return a json at last like this personality : {condition : sad or happy or angry}";
+          "Focus on the person's hand gestures and sitting or standing postures."
+          "Provide a concise summary of their personality traits in five lines each for each one of openness, conscientiousness, extraversion, agreeableness, neuroticism."
+          "return a json at last like this personality : {condition : sad or happy or angry. Otherwise Cannot be determined}";
 
       prompt.add(Part.text(defaultPrompt));
 
@@ -250,6 +249,15 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
+                        // Add the sound wave widget when listening
+                        if (_isListening)
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 16),
+                            child: SoundWaveWidget(
+                              soundLevels: _soundLevels,
+                              color: Colors.blueAccent,
+                            ),
+                          ),
                         Expanded(
                           child: SingleChildScrollView(
                             child: SelectableText(
@@ -268,47 +276,63 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                         const SizedBox(height: 16),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor:
-                                _isListening ? Colors.redAccent : Colors.black,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 30, vertical: 15),
                             textStyle: const TextStyle(
                                 fontSize: 18, fontWeight: FontWeight.bold),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(15),
+                              borderRadius: BorderRadius.circular(
+                                  30), // More rounded button
                             ),
-                            elevation: 5,
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.black.withOpacity(0.3),
+                            elevation: 8, // Add depth effect
+                          ).copyWith(
+                            foregroundColor:
+                                WidgetStateProperty.all(Colors.white),
                           ),
                           onPressed:
                               _isListening ? _stopListening : _startListening,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Row(
+                          child: Ink(
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: _isListening
+                                    ? [Colors.redAccent, Colors.deepOrange]
+                                    : [
+                                        Colors.blueAccent,
+                                        Colors.deepPurpleAccent
+                                      ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                              borderRadius: BorderRadius.circular(30),
+                            ),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 30, vertical: 15),
+                              alignment: Alignment.center,
+                              child: Row(
                                 mainAxisSize: MainAxisSize.min,
-                                mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Icon(
                                     _isListening ? Icons.stop : Icons.mic,
                                     color: Colors.white,
+                                    size: 28,
                                   ),
                                   const SizedBox(width: 10),
                                   Text(
                                     _isListening
                                         ? 'Stop Listening'
                                         : 'Start Listening',
-                                    textAlign: TextAlign.start,
                                     style: const TextStyle(
                                       color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 18,
                                     ),
                                   ),
                                 ],
                               ),
-                              if (_isListening) ...[
-                                const SizedBox(height: 8),
-                                SoundWaveWidget(soundLevels: _soundLevels),
-                              ],
-                            ],
+                            ),
                           ),
                         )
                       ],
