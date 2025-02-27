@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:personlayze/model_anal.dart';
-import 'package:personlayze/screens/CustomizationPage.dart';
 import 'package:personlayze/screens/LiveAnalysisPage.dart';
+import 'package:personlayze/screens/QuizPage.dart';
 import 'package:personlayze/widgets/CustomFeatureButton.dart';
 import 'package:personlayze/widgets/CustomHeader.dart';
 
@@ -55,11 +55,8 @@ class _HomePageState extends State<HomePage> {
                 icon: Icons.logout,
                 onPressed: _logout,
               ),
-
               const SizedBox(height: 16),
-
               const SizedBox(height: 8),
-
               TextField(
                 decoration: InputDecoration(
                   hintText: "ASK ASSISTANT TO ANALYZE",
@@ -79,8 +76,6 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 16),
-
-              // Feature Grid
               Expanded(
                 child: GridView.builder(
                   padding: const EdgeInsets.only(bottom: 16),
@@ -112,7 +107,7 @@ class _HomePageState extends State<HomePage> {
                         "onTap": () => Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => CustomizationPage())),
+                                builder: (context) => QuizPage())),
                       },
                       {
                         "image": "assets/images/speech.jpg",
