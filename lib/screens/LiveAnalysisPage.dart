@@ -21,12 +21,12 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   final List<double> _soundLevels = List.filled(20, 0.0);
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
-  bool _isAnalyzing = false;
+  bool? _isAnalyzing = false;
   String? _analysisResult;
   String? _userVoiceInput;
   Timer? _captureTimer;
   final stt.SpeechToText _speechToText = stt.SpeechToText();
-  bool _isListening = false;
+  bool? _isListening = false;
   final List<XFile> _capturedFrames = [];
   Timer? _analysisTimer;
 
@@ -59,7 +59,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   }
 
   Future<void> _startListening() async {
-    if (!_isListening) {
+    if (!_isListening!) {
       setState(() => _isListening = true);
       setState(() {
         _soundLevels.fillRange(0, _soundLevels.length, 1.0);
@@ -94,7 +94,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   void _startCaptureTimer() {
     _captureTimer?.cancel();
     _captureTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
-      if (_isListening) {
+      if (_isListening!) {
         _captureFrame();
       } else {
         timer.cancel();
@@ -103,7 +103,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   }
 
   Future<void> _captureFrame() async {
-    if (_isCameraInitialized && _isListening) {
+    if (_isCameraInitialized && _isListening!) {
       try {
         await _cameraController!.setFlashMode(FlashMode.off);
         final XFile frame = await _cameraController!.takePicture();
@@ -148,14 +148,14 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   void _resetAnalysisTimer() {
     _analysisTimer?.cancel();
     _analysisTimer = Timer(const Duration(seconds: 5), () {
-      if (_isListening) {
+      if (_isListening!) {
         _stopListening();
       }
     });
   }
 
   Future<void> _analyzeCollectedData() async {
-    if (!_isCameraInitialized || _isAnalyzing) return;
+    if (!_isCameraInitialized || _isAnalyzing!) return;
 
     setState(() {
       _isAnalyzing = true;
@@ -272,13 +272,11 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                       ),
                       padding: const EdgeInsets.all(16),
                       child: SingleChildScrollView(
-                        child: _isAnalyzing == false
+                        child: _isAnalyzing == false && _analysisResult != null
                             ? AnalysisResultWidget(
                                 analysisResult: _analysisResult!)
-                            : const Text(
-                                '',
-                                style: TextStyle(color: Colors.white),
-                              ),
+                            : const Text(' ',
+                                style: TextStyle(color: Colors.white)),
                       ),
                     ),
                   ),
@@ -301,7 +299,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        if (_isListening)
+                        if (_isListening!)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 16),
                             child: SoundWaveWidget(
@@ -326,13 +324,13 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                             foregroundColor:
                                 WidgetStateProperty.all(Colors.white),
                           ),
-                          onPressed: (_isListening || _isAnalyzing)
+                          onPressed: (_isListening! || _isAnalyzing!)
                               ? null
                               : _startListening,
                           child: Ink(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
-                                colors: _isListening
+                                colors: _isListening!
                                     ? [Colors.redAccent, Colors.deepOrange]
                                     : [
                                         Colors.blueAccent,
@@ -351,15 +349,15 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                                 mainAxisSize: MainAxisSize.min,
                                 children: [
                                   Icon(
-                                    _isListening ? Icons.stop : Icons.mic,
+                                    _isListening! ? Icons.stop : Icons.mic,
                                     color: Colors.white,
                                     size: 28,
                                   ),
                                   const SizedBox(width: 10),
                                   Text(
-                                    _isListening
+                                    _isListening!
                                         ? 'Stop Listening'
-                                        : (_isAnalyzing
+                                        : (_isAnalyzing!
                                             ? 'Analyzing...'
                                             : 'Start Listening'),
                                     style: const TextStyle(
