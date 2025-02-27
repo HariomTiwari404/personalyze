@@ -74,6 +74,10 @@ crypto
 3.4
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/crypto-3.0.6/
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/crypto-3.0.6/lib/
+csslib
+2.19
+file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/csslib-0.17.3/
+file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/csslib-0.17.3/lib/
 cupertino_icons
 3.1
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/cupertino_icons-1.0.8/
@@ -130,6 +134,10 @@ flutter_gemini
 3.0
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/flutter_gemini-3.0.0/
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/flutter_gemini-3.0.0/lib/
+flutter_html
+2.17
+file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/flutter_html-3.0.0-beta.2/
+file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/flutter_html-3.0.0-beta.2/lib/
 flutter_lints
 3.5
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/flutter_lints-5.0.0/
@@ -142,6 +150,10 @@ flutter_svg
 3.4
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/flutter_svg-2.0.17/
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/flutter_svg-2.0.17/lib/
+html
+2.19
+file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/html-0.15.4/
+file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/html-0.15.4/lib/
 http
 3.4
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/http-1.3.0/
@@ -174,6 +186,10 @@ lints
 3.6
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/lints-5.1.1/
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/lints-5.1.1/lib/
+list_counter
+2.18
+file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/list_counter-1.0.2/
+file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/list_counter-1.0.2/lib/
 matcher
 3.4
 file:///Users/hariomtiwari/.pub-cache/hosted/pub.dev/matcher-0.12.17/

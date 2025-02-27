@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_html/flutter_html.dart';
 import 'package:http/http.dart' as http;
 
 class AICoachSection extends StatefulWidget {
@@ -137,7 +138,7 @@ ${analysisHistory.isNotEmpty ? """
 User's Work Style (Based on Quiz):
 ${quizResponses.map((response) => "- ${response['question']}: ${response['selected_answer']}").join('\n')}
 
-Based on this profile, provide personalized advice for the following user query:
+Based on this profile, provide personalized advice for the following user query in 100 words only in html formating do not say anthing else pure html response only   :
 $message
 ''';
 
@@ -195,33 +196,6 @@ $message
     } catch (e) {
       throw Exception('Failed to load videos: $e');
     }
-  }
-
-  void _showVideos(List<String> videos) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Video Suggestions'),
-        content: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: videos
-                .map((title) => Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4.0),
-                      child: Text(title),
-                    ))
-                .toList(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Close'),
-          ),
-        ],
-      ),
-    );
   }
 
   Future<void> _sendMessage() async {
@@ -362,15 +336,23 @@ $message
             ),
           ],
         ),
-        child: Text(
-          message.text,
-          style: TextStyle(
-            color: message.isError ? Colors.red[900] : Colors.black87,
-            fontSize: 16,
-          ),
+        child: Html(
+          data: cleanHtmlResponse(
+              message.text), // Clean HTML response before rendering
+          style: {
+            "body": Style(
+              fontSize: FontSize(16),
+              color: message.isError ? Colors.red[900] : Colors.black87,
+            ),
+          },
         ),
       ),
     );
+  }
+
+// Function to clean AI response
+  String cleanHtmlResponse(String text) {
+    return text.replaceAll(RegExp(r'```html\n?|\n?```'), '').trim();
   }
 }
 
