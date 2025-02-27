@@ -1,11 +1,12 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
-import 'package:image/image.dart' as img; // Import the image package
+import 'package:image/image.dart' as img;
 import 'package:personlayze/widgets/SoundWaveWidget.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
@@ -114,8 +115,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
         img.Image? decodedImage = img.decodeImage(imageBytes);
 
         if (decodedImage != null) {
-          img.Image resizedImage = img.copyResize(decodedImage,
-              width: 800); // Adjust width to control size
+          img.Image resizedImage = img.copyResize(decodedImage, width: 800);
 
           List<int> compressedBytes = img.encodeJpg(resizedImage, quality: 85);
 
@@ -259,10 +259,35 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                   bottom: 0,
                   left: 0,
                   right: 0,
+                  child: SizedBox(
+                    height: 300,
+                    child: Expanded(
+                      child: SingleChildScrollView(
+                        child: _analysisResult != null
+                            ? AnalysisResultWidget(
+                                analysisResult: _analysisResult!)
+                            : const Text(
+                                'Waiting for analysis...',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.white,
+                                  fontFamily: 'Inter',
+                                  fontWeight: FontWeight.w400,
+                                  height: 1.5,
+                                ),
+                              ),
+                      ),
+                    ),
+                  ),
+                ),
+                Positioned(
+                  bottom: 0,
+                  left: 0,
+                  right: 0,
                   child: Container(
                     padding: const EdgeInsets.all(16),
                     constraints: const BoxConstraints(
-                      maxHeight: 250, // Limits height but allows scrolling
+                      maxHeight: 250,
                     ),
                     decoration: BoxDecoration(
                       color: Colors.black.withOpacity(0.6),
@@ -273,7 +298,6 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Add the sound wave widget when listening
                         if (_isListening)
                           Padding(
                             padding: const EdgeInsets.only(bottom: 16),
@@ -282,21 +306,6 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                               color: Colors.blueAccent,
                             ),
                           ),
-                        Expanded(
-                          child: SingleChildScrollView(
-                            child: SelectableText(
-                              _analysisResult ?? 'Waiting for analysis...',
-                              textAlign: TextAlign.start,
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                                fontFamily: 'inter',
-                                fontWeight: FontWeight.w400,
-                                height: 1.5,
-                              ),
-                            ),
-                          ),
-                        ),
                         const SizedBox(height: 16),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
@@ -316,7 +325,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                           ),
                           onPressed: (_isListening || _isAnalyzing)
                               ? null
-                              : _startListening, // Disable when analyzing
+                              : _startListening,
                           child: Ink(
                             decoration: BoxDecoration(
                               gradient: LinearGradient(
@@ -374,4 +383,113 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
             ),
     );
   }
+}
+
+class AnalysisResultWidget extends StatelessWidget {
+  final String? analysisResult;
+
+  const AnalysisResultWidget({super.key, required this.analysisResult});
+
+  @override
+  Widget build(BuildContext context) {
+    Map<String, dynamic>? result;
+
+    if (analysisResult == null || analysisResult!.isEmpty) {
+      return const Text(
+        'No analysis result available.',
+        style: TextStyle(color: Colors.white),
+      );
+    }
+
+    try {
+      String cleanedResult = analysisResult!.trim();
+
+      // Extract JSON part using regex
+      final regex = RegExp(r'```json\s*(\{.*?\})\s*```', dotAll: true);
+      final match = regex.firstMatch(cleanedResult);
+
+      if (match != null) {
+        cleanedResult = match.group(1)!;
+      }
+
+      result = json.decode(cleanedResult);
+    } catch (e) {
+      return Text(
+        'Error decoding analysis result: $e',
+        style: const TextStyle(color: Colors.red),
+      );
+    }
+
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.black,
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      padding: const EdgeInsets.all(16),
+      child: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Center(
+              child: Container(
+                width: 50,
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.grey[700],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+            ),
+            const SizedBox(height: 10),
+            _buildSection('Personality Condition',
+                result?['personality']?['condition'] ?? 'Unknown'),
+            _buildSection(
+                'Speech Topic', result?['speech_topic'] ?? 'Not determined'),
+            _buildSection('Posture', result?['posture'] ?? 'Unknown'),
+            _buildTraitSection('Personality Traits', result?['traits']),
+            _buildTraitSection('Speech Characteristics', result?['speech']),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSection(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: _titleStyle()),
+          const SizedBox(height: 4),
+          Text(value, style: _valueStyle()),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTraitSection(String title, Map<String, dynamic>? traits) {
+    if (traits == null) return const SizedBox();
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: _titleStyle()),
+          const SizedBox(height: 4),
+          ...traits.entries.map(
+              (e) => _buildSection(e.key.capitalize(), e.value.toString())),
+        ],
+      ),
+    );
+  }
+
+  TextStyle _titleStyle() => const TextStyle(
+      fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white);
+  TextStyle _valueStyle() =>
+      const TextStyle(fontSize: 14, color: Colors.white70);
+}
+
+extension StringExtension on String {
+  String capitalize() => this[0].toUpperCase() + substring(1);
 }
