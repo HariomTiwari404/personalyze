@@ -6,6 +6,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:image/image.dart' as img; // Import the image package
+import 'package:personlayze/widgets/SoundWaveWidget.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class LiveAnalysisPage extends StatefulWidget {
@@ -17,7 +18,8 @@ class LiveAnalysisPage extends StatefulWidget {
 
 class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   final bool _isCapturing = false; // Add this flag
-
+  final double _soundLevel = 0.0;
+  final List<double> _soundLevels = List.filled(20, 0.0);
   CameraController? _cameraController;
   bool _isCameraInitialized = false;
   bool _isAnalyzing = false;
@@ -61,6 +63,9 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   Future<void> _startListening() async {
     if (!_isListening) {
       setState(() => _isListening = true);
+      setState(() {
+        _soundLevels.fillRange(0, _soundLevels.length, 1.0);
+      });
       _capturedFrames.clear();
       _userVoiceInput = null;
 
@@ -72,7 +77,10 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
           _resetAnalysisTimer();
         },
         onSoundLevelChange: (level) {
-          _resetAnalysisTimer();
+          setState(() {
+            _soundLevels.removeAt(0);
+            _soundLevels.add(level / 10);
+          });
         },
         cancelOnError: true,
         listenFor: const Duration(seconds: 60),
@@ -80,7 +88,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
         localeId: 'en_US',
       );
 
-      _startCaptureTimer(); // Start the timer to capture frames every 2 secs
+      _startCaptureTimer();
       _resetAnalysisTimer();
     }
   }
@@ -105,18 +113,14 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
         File originalFile = File(frame.path);
         if (!await originalFile.exists()) return;
 
-        // Read image bytes
         Uint8List imageBytes = await originalFile.readAsBytes();
         img.Image? decodedImage = img.decodeImage(imageBytes);
 
         if (decodedImage != null) {
-          // Resize image (adjust resolution to reduce size)
           img.Image resizedImage = img.copyResize(decodedImage,
               width: 800); // Adjust width to control size
 
-          // Compress image to JPEG with lower quality
-          List<int> compressedBytes = img.encodeJpg(resizedImage,
-              quality: 85); // Adjust quality (lower = smaller size)
+          List<int> compressedBytes = img.encodeJpg(resizedImage, quality: 85);
 
           // Save the compressed image to a temporary file
           File compressedFile = File(frame.path)
@@ -213,7 +217,6 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      // You can remove or customize the AppBar if you prefer a full-screen camera
       appBar: AppBar(
         title: const Text('AI Personality Analysis'),
         backgroundColor: Colors.black,
@@ -228,9 +231,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
       body: _isCameraInitialized
           ? Stack(
               children: [
-                // Camera preview as the full-screen background
                 CameraPreview(_cameraController!),
-                // Bottom overlay for analysis response and the control button
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -280,27 +281,36 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                           ),
                           onPressed:
                               _isListening ? _stopListening : _startListening,
-                          child: Row(
+                          child: Column(
                             mainAxisSize: MainAxisSize.min,
-                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
-                                _isListening ? Icons.stop : Icons.mic,
-                                color: Colors.white,
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                    _isListening ? Icons.stop : Icons.mic,
+                                    color: Colors.white,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Text(
+                                    _isListening
+                                        ? 'Stop Listening'
+                                        : 'Start Listening',
+                                    textAlign: TextAlign.start,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ],
                               ),
-                              const SizedBox(width: 10),
-                              Text(
-                                _isListening
-                                    ? 'Stop Listening'
-                                    : 'Start Listening',
-                                textAlign: TextAlign.start,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                ),
-                              ),
+                              if (_isListening) ...[
+                                const SizedBox(height: 8),
+                                SoundWaveWidget(soundLevels: _soundLevels),
+                              ],
                             ],
                           ),
-                        ),
+                        )
                       ],
                     ),
                   ),
