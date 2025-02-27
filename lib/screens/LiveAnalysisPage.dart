@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_gemini/flutter_gemini.dart';
 import 'package:image/image.dart' as img;
@@ -136,6 +137,22 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
     }
   }
 
+  Future<List<Map<String, dynamic>>> _getAnalysisHistory() async {
+    String userId = "testUser"; // Replace with FirebaseAuth user ID
+
+    final docRef = FirebaseFirestore.instance
+        .collection('personality_analysis')
+        .doc(userId);
+    final docSnapshot = await docRef.get();
+
+    if (docSnapshot.exists) {
+      final data = docSnapshot.data();
+      return (data?['analysis_history'] as List<dynamic>)
+          .cast<Map<String, dynamic>>();
+    }
+    return [];
+  }
+
   void _stopListening() {
     _speechToText.stop();
     _captureTimer?.cancel();
@@ -155,6 +172,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   }
 
   Future<void> _analyzeCollectedData() async {
+    print("Starting analysis...");
     if (!_isCameraInitialized || _isAnalyzing!) return;
 
     setState(() {
@@ -215,15 +233,36 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
       }
 
       final response = await Gemini.instance.prompt(parts: prompt);
+
       setState(() {
         _analysisResult = response?.output ?? 'No analysis result available.';
       });
+
+      await _storeAnalysisResult(_analysisResult!);
+      print("Calling _storeAnalysisResult...");
     } catch (e) {
       setState(() {
         _analysisResult = 'Analysis failed: $e';
       });
     } finally {
       setState(() => _isAnalyzing = false);
+    }
+  }
+
+  Future<void> _storeAnalysisResult(String resultText) async {
+    try {
+      String userId = "testUser";
+      final docRef = FirebaseFirestore.instance
+          .collection('personality_analysis')
+          .doc(userId);
+
+      await docRef.set({
+        'analysis_history': FieldValue.arrayUnion([resultText])
+      }, SetOptions(merge: true));
+
+      print("Analysis result stored successfully.");
+    } catch (e) {
+      print("Error storing analysis result: $e");
     }
   }
 
