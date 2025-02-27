@@ -48,7 +48,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
 
     _cameraController = CameraController(
       frontCamera,
-      ResolutionPreset.low,
+      ResolutionPreset.ultraHigh,
       enableAudio: false,
     );
     await _cameraController!.initialize();
@@ -211,10 +211,11 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.black,
       // You can remove or customize the AppBar if you prefer a full-screen camera
       appBar: AppBar(
         title: const Text('AI Personality Analysis'),
-        backgroundColor: Colors.deepPurple,
+        backgroundColor: Colors.black,
         elevation: 0,
         centerTitle: true,
         titleTextStyle: const TextStyle(
@@ -265,9 +266,8 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                         const SizedBox(height: 16),
                         ElevatedButton(
                           style: ElevatedButton.styleFrom(
-                            backgroundColor: _isListening
-                                ? Colors.redAccent
-                                : Colors.deepPurple,
+                            backgroundColor:
+                                _isListening ? Colors.redAccent : Colors.black,
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 30, vertical: 15),
                             textStyle: const TextStyle(
@@ -276,7 +276,6 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                               borderRadius: BorderRadius.circular(15),
                             ),
                             elevation: 5,
-                            shadowColor: Colors.deepPurpleAccent,
                           ),
                           onPressed:
                               _isListening ? _stopListening : _startListening,
@@ -309,7 +308,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
             )
           : const Center(
               child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.deepPurple),
+                valueColor: AlwaysStoppedAnimation<Color>(Colors.black),
               ),
             ),
     );
