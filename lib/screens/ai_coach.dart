@@ -350,7 +350,6 @@ $message
     );
   }
 
-// Function to clean AI response
   String cleanHtmlResponse(String text) {
     return text.replaceAll(RegExp(r'```html\n?|\n?```'), '').trim();
   }
