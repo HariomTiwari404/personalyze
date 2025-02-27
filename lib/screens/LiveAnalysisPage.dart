@@ -119,12 +119,10 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
 
           List<int> compressedBytes = img.encodeJpg(resizedImage, quality: 85);
 
-          // Save the compressed image to a temporary file
           File compressedFile = File(frame.path)
             ..writeAsBytesSync(compressedBytes);
 
           if (compressedFile.lengthSync() <= 1024 * 1024) {
-            // Ensure it's under 1MB
             setState(() {
               _capturedFrames.add(XFile(compressedFile.path));
             });
@@ -140,7 +138,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
 
   void _stopListening() {
     _speechToText.stop();
-    _captureTimer?.cancel(); // Stop capturing when listening stops
+    _captureTimer?.cancel();
     setState(() {
       _isListening = false;
     });
@@ -168,12 +166,32 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
       List<Part> prompt = [];
 
       const String defaultPrompt =
-          "Analyze the person's personality based on their speech and facial expressions."
-          "Analyse the base color and design of the person's attire."
-          "Ignore the content of their speech and focus on their emotional state, confidence level, and non-verbal cues."
-          "Focus on the person's hand gestures and sitting or standing postures."
-          "Provide a concise summary of their personality traits in five lines each for each one of openness, conscientiousness, extraversion, agreeableness, neuroticism."
-          "return a json at last like this personality : {condition : sad or happy or angry. Otherwise Cannot be determined}";
+          "You are an AI analyzing a person's personality based on their speech, facial expressions, and body language. "
+          "Follow these strict guidelines to ensure accuracy and minimize hallucination: "
+          "1. **Speech Analysis:** Extract emotional tone, confidence level, and speaking pace, but DO NOT assume any meaning beyond detected vocal patterns. "
+          "2. **Facial Expression Analysis:** Identify visible emotions such as happiness, sadness, anger, or neutrality. Avoid making subjective assumptions. "
+          "3. **Attire Analysis:** Describe the base color and design of the person's attire, but DO NOT infer anything about their personality based on it. "
+          "4. **Body Language:** Observe hand gestures and posture to determine engagement level (e.g., open vs. closed posture). "
+          "5. **Conversation Context:** Extract a brief summary (max 20 words) of what the person is talking about, if determinable. Otherwise, state 'Cannot be determined'. "
+          "6. **Personality Traits:** Provide a numerical rating (0-10) for each of the Big Five personality traits based on visible cues only: "
+          "   - Openness: (0-10) "
+          "   - Conscientiousness: (0-10) "
+          "   - Extraversion: (0-10) "
+          "   - Agreeableness: (0-10) "
+          "   - Neuroticism: (0-10) "
+          "7. **Strict Output Format:** Return the following structured JSON response without adding any explanations: "
+          "{ "
+          "\"personality\": {\"condition\": \"sad\", \"happy\", \"angry\"}, "
+          "\"speech_topic\": \"A short description of what the person is talking about, or 'Cannot be determined'\", "
+          "\"posture\": \"open\" or \"closed\" or \"neutral\", "
+          "\"traits\": { "
+          "  \"openness\": (0-10), "
+          "  \"conscientiousness\": (0-10), "
+          "  \"extraversion\": (0-10), "
+          "  \"agreeableness\": (0-10), "
+          "  \"neuroticism\": (0-10) "
+          "} "
+          "}";
 
       prompt.add(Part.text(defaultPrompt));
 
