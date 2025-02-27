@@ -16,6 +16,7 @@ class _MoodSummaryScreenState extends State<MoodSummaryScreen> {
   List<BarChartGroupData> _confidenceData = [];
   List<BarChartGroupData> _fluencyData = [];
   List<RadarDataSet> _radarData = [];
+  Map<String, double> _latestTraits = {};
 
   @override
   void initState() {
@@ -78,6 +79,7 @@ class _MoodSummaryScreenState extends State<MoodSummaryScreen> {
           _confidenceData = confidenceData;
           _fluencyData = fluencyData;
           _radarData = radarData;
+          _latestTraits = latestTraits;
         });
       }
     }
@@ -183,6 +185,14 @@ class _MoodSummaryScreenState extends State<MoodSummaryScreen> {
                           dataSets: _radarData,
                           radarBackgroundColor: Colors.transparent,
                           borderData: FlBorderData(show: false),
+                          titlePositionPercentageOffset: 0.15,
+                          getTitle: (index, angle) {
+                            return RadarChartTitle(
+                              text: _latestTraits.keys.elementAt(index),
+                              angle: angle,
+                              positionPercentageOffset: 0.1,
+                            );
+                          },
                         ),
                       ),
               ),
