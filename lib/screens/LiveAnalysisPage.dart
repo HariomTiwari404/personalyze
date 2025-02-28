@@ -309,7 +309,7 @@ class _LiveAnalysisPageState extends State<LiveAnalysisPage> {
                           top: Radius.circular(20),
                         ),
                       ),
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.only(bottom: 100),
                       child: SingleChildScrollView(
                         child: _isAnalyzing == false && _analysisResult != null
                             ? AnalysisResultWidget(
@@ -435,16 +435,11 @@ class AnalysisResultWidget extends StatelessWidget {
     Map<String, dynamic>? result;
 
     if (analysisResult == null || analysisResult!.isEmpty) {
-      return const Text(
-        'No analysis result available.',
-        style: TextStyle(color: Colors.white),
-      );
+      return _buildErrorMessage('No analysis result available.');
     }
 
     try {
       String cleanedResult = analysisResult!.trim();
-
-      // Extract JSON part using regex
       final regex = RegExp(r'```json\s*(\{.*?\})\s*```', dotAll: true);
       final match = regex.firstMatch(cleanedResult);
 
@@ -454,19 +449,18 @@ class AnalysisResultWidget extends StatelessWidget {
 
       result = json.decode(cleanedResult);
     } catch (e) {
-      return Text(
-        'Error decoding analysis result: $e',
-        style: const TextStyle(color: Colors.red),
-      );
+      return _buildErrorMessage('Error decoding analysis result: $e');
     }
 
     return Container(
-      decoration: const BoxDecoration(
-        color: Colors.black,
-        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+        boxShadow: [],
       ),
       padding: const EdgeInsets.all(16),
       child: SingleChildScrollView(
+        physics: const BouncingScrollPhysics(),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -481,53 +475,105 @@ class AnalysisResultWidget extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 10),
-            _buildSection('Personality Condition',
-                result?['personality']?['condition'] ?? 'Unknown'),
-            _buildSection(
-                'Speech Topic', result?['speech_topic'] ?? 'Not determined'),
-            _buildSection('Posture', result?['posture'] ?? 'Unknown'),
-            _buildTraitSection('Personality Traits', result?['traits']),
-            _buildTraitSection('Speech Characteristics', result?['speech']),
+            _buildCardSection(
+                'Personality Condition', result?['personality']?['condition']),
+            _buildCardSection('Speech Topic', result?['speech_topic']),
+            _buildCardSection('Posture', result?['posture']),
+            _buildExpandableTraitSection(
+                context, 'Personality Traits', result?['traits']),
+            _buildExpandableTraitSection(
+                context, 'Speech Characteristics', result?['speech']),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildSection(String title, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title, style: _titleStyle()),
-          const SizedBox(height: 4),
-          Text(value, style: _valueStyle()),
-        ],
+  Widget _buildErrorMessage(String message) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.red[400],
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Center(
+        child: Text(
+          message,
+          style: const TextStyle(color: Colors.white, fontSize: 16),
+        ),
       ),
     );
   }
 
-  Widget _buildTraitSection(String title, Map<String, dynamic>? traits) {
-    if (traits == null) return const SizedBox();
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
+  Widget _buildCardSection(String title, String? value) {
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.3), // Transparent background
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white, width: 1.5), // White border
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(title, style: _titleStyle()),
-          const SizedBox(height: 4),
-          ...traits.entries.map(
-              (e) => _buildSection(e.key.capitalize(), e.value.toString())),
+          const SizedBox(height: 6),
+          Text(value ?? 'Unknown', style: _valueStyle()),
         ],
       ),
     );
   }
 
   TextStyle _titleStyle() => const TextStyle(
-      fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white);
+      fontSize: 18, fontWeight: FontWeight.bold, color: Colors.lightBlueAccent);
   TextStyle _valueStyle() =>
-      const TextStyle(fontSize: 14, color: Colors.white70);
+      const TextStyle(fontSize: 16, color: Colors.lightBlueAccent);
+  Widget _buildExpandableTraitSection(
+      BuildContext context, String title, Map<String, dynamic>? traits) {
+    if (traits == null) return const SizedBox();
+
+    return Container(
+      margin: const EdgeInsets.symmetric(vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.black.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.white, width: 1.5),
+      ),
+      child: Theme(
+        data: Theme.of(context).copyWith(
+          dividerColor: Colors.transparent,
+        ),
+        child: ExpansionTile(
+          tilePadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          title: Text(title, style: _titleStyle()),
+          collapsedIconColor: Colors.white70,
+          iconColor: Colors.white,
+          children: traits.entries
+              .map((e) => Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+                    child:
+                        _buildTraitItem(e.key.capitalize(), e.value.toString()),
+                  ))
+              .toList(),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTraitItem(String key, String value) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(key, style: _valueStyle()),
+        Text(value, style: _traitValueStyle()),
+      ],
+    );
+  }
+
+  TextStyle _traitValueStyle() =>
+      const TextStyle(fontSize: 14, color: Colors.lightBlueAccent);
 }
 
 extension StringExtension on String {
