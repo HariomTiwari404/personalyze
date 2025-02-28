@@ -78,52 +78,81 @@ class _HomePageState extends State<HomePage> {
               ),
               const SizedBox(height: 16),
               Expanded(
-                child: GridView.builder(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 16,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 1,
-                  ),
-                  itemCount: 4,
-                  itemBuilder: (context, index) {
-                    final featureData = [
-                      {
-                        "image": "assets/images/ai.jpg",
-                        "onTap": () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => LiveAnalysisPage())),
-                      },
-                      {
-                        "image": "assets/images/customization.jpg",
-                        "onTap": () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => MoodSummaryScreen())),
-                      },
-                      {
-                        "image": "assets/images/14.jpg",
-                        "onTap": () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => QuizPage())),
-                      },
-                      {
-                        "image": "assets/images/speech.jpg",
-                        "onTap": () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => AICoachSection())),
-                      },
-                    ];
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: GridView.builder(
+                        padding: const EdgeInsets.only(bottom: 16),
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 1,
+                        ),
+                        itemCount: 4,
+                        itemBuilder: (context, index) {
+                          final featureData = [
+                            {
+                              "image": "assets/images/ai.jpg",
+                              "onTap": () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          LiveAnalysisPage())),
+                            },
+                            {
+                              "image": "assets/images/customization.jpg",
+                              "onTap": () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          MoodSummaryScreen())),
+                            },
+                            {
+                              "image": "assets/images/14.jpg",
+                              "onTap": () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => QuizPage())),
+                            },
+                            {
+                              "image": "assets/images/speech.jpg",
+                              "onTap": () => Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) => AICoachSection())),
+                            },
+                          ];
 
-                    return CustomFeatureButton(
-                      imageLocation: featureData[index]["image"] as String,
-                      onTap: featureData[index]["onTap"] as VoidCallback,
-                    );
-                  },
+                          return CustomFeatureButton(
+                            imageLocation:
+                                featureData[index]["image"] as String,
+                            onTap: featureData[index]["onTap"] as VoidCallback,
+                          );
+                        },
+                      ),
+                    ),
+                    const SizedBox(height: 16), // Space before the text
+                    const Text(
+                      "Made by team Santarius with ❤️",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black54,
+                      ),
+                    ),
+                    Text(
+                      "-------GEEX------- ",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ],
